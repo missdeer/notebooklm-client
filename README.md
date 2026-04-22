@@ -27,68 +27,68 @@ go build -o notebooklm ./cmd/notebooklm
 
 ```bash
 # 方式一：通过浏览器登录并导出 session（自动探测 Chrome/Edge/Brave/Chromium）
-./notebooklm export-session
+npx @missdeer/notebooklm export-session
 
 # 指定浏览器路径
-./notebooklm export-session --chrome-path "/path/to/browser"
+npx @missdeer/notebooklm export-session --chrome-path "/path/to/browser"
 
 # 方式二：从 TypeScript 版本导入已有 session
-./notebooklm import-session ~/.notebooklm/session.json
+npx @missdeer/notebooklm import-session ~/.notebooklm/session.json
 ```
 
 ### 2. 使用
 
 ```bash
 # 列出笔记本
-./notebooklm list
+npx @missdeer/notebooklm list
 
 # 从 URL 生成音频播客
-./notebooklm audio --url "https://en.wikipedia.org/wiki/Go_(programming_language)" -o ./output -l en
+npx @missdeer/notebooklm audio --url "https://en.wikipedia.org/wiki/Go_(programming_language)" -o ./output -l en
 
 # 辩论格式，短篇
-./notebooklm audio --topic "quantum computing" -o ./output --format debate --length short
+npx @missdeer/notebooklm audio --topic "quantum computing" -o ./output --format debate --length short
 
 # 生成报告
-./notebooklm report --url "https://example.com/article" -o ./output --template study_guide
+npx @missdeer/notebooklm report --url "https://example.com/article" -o ./output --template study_guide
 
 # 生成幻灯片
-./notebooklm slides --url "https://example.com/article" -o ./output
+npx @missdeer/notebooklm slides --url "https://example.com/article" -o ./output
 
 # 生成测验
-./notebooklm quiz --url "https://example.com/article" -o ./output --difficulty medium
+npx @missdeer/notebooklm quiz --url "https://example.com/article" -o ./output --difficulty medium
 
 # 生成闪卡
-./notebooklm flashcards --url "https://example.com/article" -o ./output
+npx @missdeer/notebooklm flashcards --url "https://example.com/article" -o ./output
 
 # 生成视频
-./notebooklm video --url "https://example.com/article" -o ./output --format explainer --style whiteboard
+npx @missdeer/notebooklm video --url "https://example.com/article" -o ./output --format explainer --style whiteboard
 
 # 生成信息图
-./notebooklm infographic --url "https://example.com/article" -o ./output --orientation landscape
+npx @missdeer/notebooklm infographic --url "https://example.com/article" -o ./output --orientation landscape
 
 # 生成数据表
-./notebooklm data-table --url "https://example.com/article" -o ./output
+npx @missdeer/notebooklm data-table --url "https://example.com/article" -o ./output
 
 # 分析内容
-./notebooklm analyze --url "https://example.com/paper.pdf" -q "What are the key findings?"
+npx @missdeer/notebooklm analyze --url "https://example.com/paper.pdf" -q "What are the key findings?"
 
 # 与笔记本对话
-./notebooklm chat <notebook-id> -q "Summarize this"
+npx @missdeer/notebooklm chat <notebook-id> -q "Summarize this"
 
 # 查看笔记本详情
-./notebooklm detail <notebook-id>
+npx @missdeer/notebooklm detail <notebook-id>
 
 # 删除笔记本
-./notebooklm delete <notebook-id>
+npx @missdeer/notebooklm delete <notebook-id>
 
 # 向已有笔记本添加源
-./notebooklm source add <notebook-id> --url "https://example.com"
+npx @missdeer/notebooklm source add <notebook-id> --url "https://example.com"
 
 # 刷新 token（无需浏览器）
-./notebooklm refresh-session
+npx @missdeer/notebooklm refresh-session
 
 # 系统诊断
-./notebooklm diagnose
+npx @missdeer/notebooklm diagnose
 ```
 
 ## Transport 模式
@@ -101,8 +101,8 @@ go build -o notebooklm ./cmd/notebooklm
 | `browser` | rod 启动真实浏览器 | 100% |
 
 ```bash
-./notebooklm list --transport http
-./notebooklm audio --transport curl --url "https://example.com" -o ./output
+npx @missdeer/notebooklm list --transport http
+npx @missdeer/notebooklm audio --transport curl --url "https://example.com" -o ./output
 ```
 
 ### 浏览器自动探测
