@@ -1,6 +1,6 @@
 {
   "name": "@missdeer/notebooklm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI client for Google NotebookLM — create notebooks, add sources, generate audio/reports/slides and more",
   "publishConfig": {
     "access": "public"
@@ -43,10 +43,10 @@
     "arm64"
   ],
   "optionalDependencies": {
-    "@notebooklm-client/notebooklm-darwin-universal": "0.1.0",
-    "@notebooklm-client/notebooklm-linux-x64": "0.1.0",
-    "@notebooklm-client/notebooklm-linux-arm64": "0.1.0",
-    "@notebooklm-client/notebooklm-win32-x64": "0.1.0",
-    "@notebooklm-client/notebooklm-win32-arm64": "0.1.0"
+    "@notebooklm-client/notebooklm-darwin-universal": "0.1.1",
+    "@notebooklm-client/notebooklm-linux-x64": "0.1.1",
+    "@notebooklm-client/notebooklm-linux-arm64": "0.1.1",
+    "@notebooklm-client/notebooklm-win32-x64": "0.1.1",
+    "@notebooklm-client/notebooklm-win32-arm64": "0.1.1"
   }
 }
