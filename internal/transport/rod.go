@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -131,9 +132,14 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		l = l.Bin(bin)
 		log.Printf("NotebookLM: Using browser: %s", bin)
 	}
-	if t.opts.ProfileDir != "" {
-		l = l.UserDataDir(t.opts.ProfileDir)
+
+	profileDir := t.opts.ProfileDir
+	if profileDir == "" {
+		profileDir = rpc.ProfileDir()
 	}
+	isFirstRun := !dirExists(filepath.Join(profileDir, "Default"))
+	l = l.UserDataDir(profileDir)
+
 	if t.opts.Headless {
 		l = l.Headless(true)
 	} else {
@@ -162,51 +168,56 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		return &types.BrowserError{Msg: fmt.Sprintf("wait for page load: %v", err), Cause: err}
 	}
 
-	// Wait for WIZ_global_data tokens to appear
-	deadline := time.Now().Add(t.opts.Timeout)
-	var at, bl, fsid, language string
-	for time.Now().Before(deadline) {
-		result, err := page.Eval(`() => {
-			const d = window.WIZ_global_data;
-			if (!d || !d.SNlM0e) return null;
-			return {
-				at: d.SNlM0e || '',
-				bl: d.cfb2h || '',
-				fsid: d.FdrFJe || '',
-				lang: document.documentElement.lang || ''
-			};
-		}`)
-		if err == nil && result != nil && result.Value.Str() != "" {
-			var tokens struct {
-				AT   string `json:"at"`
-				BL   string `json:"bl"`
-				FSID string `json:"fsid"`
-				Lang string `json:"lang"`
+	if isFirstRun {
+		log.Println("NotebookLM: First run — please log in to your Google account.")
+	}
+
+	// Wait for user to land on notebooklm.google.com with valid tokens.
+	// May go through Google login first — poll up to 3 minutes.
+	at, bl, fsid, language := t.waitForTokens(page, 180*time.Second)
+
+	if at == "" {
+		// Tokens not found — likely the page came from a login redirect
+		// and WIZ_global_data wasn't injected. Reload to get a clean page load.
+		currentURL := page.MustInfo().URL
+		log.Printf("NotebookLM: Tokens not found at %s, reloading...", currentURL)
+
+		if !strings.Contains(currentURL, "notebooklm.google.com") {
+			if err := page.Navigate(rpc.DashboardURL); err != nil {
+				return fmt.Errorf("navigate after login: %w", err)
 			}
-			if err := json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens); err == nil && tokens.AT != "" {
-				at = tokens.AT
-				bl = tokens.BL
-				fsid = tokens.FSID
-				language = tokens.Lang
-				break
+		} else {
+			if err := page.Reload(); err != nil {
+				return fmt.Errorf("reload after login: %w", err)
 			}
 		}
-		time.Sleep(2 * time.Second)
+		if err := page.WaitLoad(); err != nil {
+			return fmt.Errorf("wait for reload: %w", err)
+		}
+
+		at, bl, fsid, language = t.waitForTokens(page, 60*time.Second)
 	}
 
 	if at == "" {
 		return types.NewSessionError("failed to extract tokens from page (not logged in?)", nil)
 	}
 
-	cookies, err := page.Cookies(nil)
+	// Use CDP Network.getAllCookies to get ALL browser cookies including HttpOnly ones
+	// (SID, HSID, SSID, etc.) across all domains — not just the current page URL.
+	// This matches the TS implementation which uses cdp.send('Network.getAllCookies').
+	allCookiesResult, err := proto.NetworkGetAllCookies{}.Call(page)
 	if err != nil {
-		return fmt.Errorf("get cookies: %w", err)
+		return fmt.Errorf("get all cookies: %w", err)
 	}
 
 	var jar []types.SessionCookie
 	var cookieParts []string
-	for _, c := range cookies {
-		cookieParts = append(cookieParts, c.Name+"="+c.Value)
+	seen := make(map[string]bool)
+	for _, c := range allCookiesResult.Cookies {
+		// Only keep Google domain cookies (matches TS filter)
+		if !isGoogleDomain(c.Domain) {
+			continue
+		}
 		jar = append(jar, types.SessionCookie{
 			Name:     c.Name,
 			Value:    c.Value,
@@ -215,6 +226,12 @@ func (t *RodTransport) Init(ctx context.Context) error {
 			Secure:   c.Secure,
 			HttpOnly: c.HTTPOnly,
 		})
+		// Deduplicate for flat cookie string
+		key := c.Name + "=" + c.Value
+		if !seen[key] {
+			seen[key] = true
+			cookieParts = append(cookieParts, key)
+		}
 	}
 
 	ua, _ := page.Eval(`() => navigator.userAgent`)
@@ -356,4 +373,50 @@ func joinStrings(parts []string, sep string) string {
 		result += sep + p
 	}
 	return result
+}
+
+// waitForTokens polls the page until it's on notebooklm.google.com with valid WIZ_global_data tokens.
+// Returns empty strings if the timeout expires without finding tokens.
+func (t *RodTransport) waitForTokens(page *rod.Page, timeout time.Duration) (at, bl, fsid, language string) {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		result, err := page.Eval(`() => {
+			if (!location.hostname.includes('notebooklm.google.com')) return null;
+			const d = window.WIZ_global_data;
+			if (!d || !d.SNlM0e) return null;
+			const bl = d.cfb2h || '';
+			if (!bl.includes('labs-tailwind')) return null;
+			return {
+				at: d.SNlM0e || '',
+				bl: bl,
+				fsid: d.FdrFJe || '',
+				lang: document.documentElement.lang || ''
+			};
+		}`)
+		if err == nil && result != nil && result.Value.Str() != "" {
+			var tokens struct {
+				AT   string `json:"at"`
+				BL   string `json:"bl"`
+				FSID string `json:"fsid"`
+				Lang string `json:"lang"`
+			}
+			if err := json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens); err == nil && tokens.AT != "" {
+				return tokens.AT, tokens.BL, tokens.FSID, tokens.Lang
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+	return "", "", "", ""
+}
+
+func dirExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && info.IsDir()
+}
+
+// isGoogleDomain checks if a cookie domain belongs to Google services.
+func isGoogleDomain(domain string) bool {
+	return strings.HasSuffix(domain, "google.com") ||
+		strings.HasSuffix(domain, "googleapis.com") ||
+		strings.HasSuffix(domain, "googleusercontent.com")
 }

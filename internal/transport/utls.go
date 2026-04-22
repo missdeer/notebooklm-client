@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	utls "github.com/refraction-networking/utls"
+	"golang.org/x/net/http2"
 
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
@@ -141,44 +142,97 @@ func (t *UTLSTransport) Close() error {
 
 func (t *UTLSTransport) createHTTPClient() *http.Client {
 	dialer := &net.Dialer{}
-	transport := &http.Transport{
-		DialTLSContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			host, _, err := net.SplitHostPort(addr)
-			if err != nil {
-				host = addr
-			}
 
-			rawConn, err := dialer.DialContext(ctx, network, addr)
-			if err != nil {
-				return nil, err
-			}
+	dialTLS := func(ctx context.Context, network, addr string) (net.Conn, error) {
+		host, _, err := net.SplitHostPort(addr)
+		if err != nil {
+			host = addr
+		}
 
-			uConn := utls.UClient(rawConn, &utls.Config{
-				ServerName:         host,
-				InsecureSkipVerify: false,
-			}, utls.HelloChrome_131)
+		rawConn, err := dialer.DialContext(ctx, network, addr)
+		if err != nil {
+			return nil, err
+		}
 
-			if err := uConn.HandshakeContext(ctx); err != nil {
-				rawConn.Close()
-				return nil, err
-			}
-			return uConn, nil
-		},
-		ForceAttemptHTTP2: true,
-		TLSClientConfig: &tls.Config{
+		uConn := utls.UClient(rawConn, &utls.Config{
+			ServerName:         host,
 			InsecureSkipVerify: false,
+		}, utls.HelloChrome_131)
+
+		if err := uConn.HandshakeContext(ctx); err != nil {
+			rawConn.Close()
+			return nil, err
+		}
+		return uConn, nil
+	}
+
+	// HTTP/2 transport for when ALPN negotiates h2
+	h2Transport := &http2.Transport{
+		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
+			return dialTLS(ctx, network, addr)
 		},
+	}
+
+	// HTTP/1.1 fallback transport
+	h1Transport := &http.Transport{
+		DialTLSContext: dialTLS,
 	}
 
 	if t.proxy != "" {
 		if proxyURL, err := url.Parse(t.proxy); err == nil {
-			transport.Proxy = http.ProxyURL(proxyURL)
+			h1Transport.Proxy = http.ProxyURL(proxyURL)
 		}
 	}
 
+	// Use a round-tripper that picks h2 or h1 based on ALPN result
 	return &http.Client{
-		Transport: transport,
+		Transport: &alpnSwitchTransport{
+			dialer:      dialer,
+			h2:          h2Transport,
+			h1:          h1Transport,
+			dialTLS:     dialTLS,
+			proxy:       t.proxy,
+		},
 	}
+}
+
+// alpnSwitchTransport probes the ALPN result and delegates to h2 or h1.
+type alpnSwitchTransport struct {
+	dialer  *net.Dialer
+	h2      *http2.Transport
+	h1      *http.Transport
+	dialTLS func(ctx context.Context, network, addr string) (net.Conn, error)
+	proxy   string
+
+	once     sync.Once
+	useHTTP2 bool
+}
+
+func (a *alpnSwitchTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	a.once.Do(func() {
+		// Probe the server to check ALPN negotiation
+		addr := req.URL.Host
+		if !strings.Contains(addr, ":") {
+			if req.URL.Scheme == "https" {
+				addr += ":443"
+			} else {
+				addr += ":80"
+			}
+		}
+		conn, err := a.dialTLS(req.Context(), "tcp", addr)
+		if err != nil {
+			return
+		}
+		if uConn, ok := conn.(*utls.UConn); ok {
+			a.useHTTP2 = uConn.ConnectionState().NegotiatedProtocol == "h2"
+		}
+		conn.Close()
+	})
+
+	if a.useHTTP2 {
+		return a.h2.RoundTrip(req)
+	}
+	return a.h1.RoundTrip(req)
 }
 
 func isSessionError(err error, target **types.SessionError) bool {
