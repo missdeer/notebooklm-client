@@ -1,4 +1,4 @@
-# @missdeer/notebooklm-darwin-universal
+# @notebooklm-client/notebooklm-darwin-universal
 
 Platform-specific binary for [notebooklm](https://github.com/missdeer/notebooklm-client) (macOS Universal - x64 and arm64).
 

@@ -57,7 +57,7 @@ for platform in "${!PLATFORM_MAP[@]}"; do
   pkg_dir="${SCRIPT_DIR}/platforms/${platform}"
 
   echo ""
-  echo "==> Publishing @missdeer/notebooklm-${platform}@${VERSION}..."
+  echo "==> Publishing @notebooklm-client/notebooklm-${platform}@${VERSION}..."
 
   # Update version in package.json
   cd "${pkg_dir}"
@@ -74,7 +74,7 @@ for platform in "${!PLATFORM_MAP[@]}"; do
   # Clean up binary (don't commit it)
   rm -rf bin
 
-  echo "    Done: @missdeer/notebooklm-${platform}@${VERSION}"
+  echo "    Done: @notebooklm-client/notebooklm-${platform}@${VERSION}"
 done
 
 # Publish main wrapper package

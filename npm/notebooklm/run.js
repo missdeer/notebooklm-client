@@ -5,12 +5,12 @@ const path = require("path");
 const os = require("os");
 
 const PLATFORMS = {
-  "darwin-x64": "@missdeer/notebooklm-darwin-universal",
-  "darwin-arm64": "@missdeer/notebooklm-darwin-universal",
-  "linux-x64": "@missdeer/notebooklm-linux-x64",
-  "linux-arm64": "@missdeer/notebooklm-linux-arm64",
-  "win32-x64": "@missdeer/notebooklm-win32-x64",
-  "win32-arm64": "@missdeer/notebooklm-win32-arm64",
+  "darwin-x64": "@notebooklm-client/notebooklm-darwin-universal",
+  "darwin-arm64": "@notebooklm-client/notebooklm-darwin-universal",
+  "linux-x64": "@notebooklm-client/notebooklm-linux-x64",
+  "linux-arm64": "@notebooklm-client/notebooklm-linux-arm64",
+  "win32-x64": "@notebooklm-client/notebooklm-win32-x64",
+  "win32-arm64": "@notebooklm-client/notebooklm-win32-arm64",
 };
 
 function getBinaryPath() {

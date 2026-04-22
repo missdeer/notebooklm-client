@@ -1,5 +1,5 @@
 {
-  "name": "@missdeer/notebooklm-linux-x64",
+  "name": "@notebooklm-client/notebooklm-linux-x64",
   "version": "0.1.0",
   "description": "Platform-specific binary for notebooklm (Linux x64)",
   "license": "GPL-3.0-only OR LicenseRef-Commercial",

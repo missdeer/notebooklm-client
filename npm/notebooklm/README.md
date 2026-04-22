@@ -20,11 +20,11 @@ This package uses platform-specific optional dependencies to provide pre-built b
 
 | Platform | Architecture | Package |
 |----------|--------------|---------|
-| macOS    | x64, ARM64   | `@missdeer/notebooklm-darwin-universal` |
-| Linux    | x64          | `@missdeer/notebooklm-linux-x64` |
-| Linux    | ARM64        | `@missdeer/notebooklm-linux-arm64` |
-| Windows  | x64          | `@missdeer/notebooklm-win32-x64` |
-| Windows  | ARM64        | `@missdeer/notebooklm-win32-arm64` |
+| macOS    | x64, ARM64   | `@notebooklm-client/notebooklm-darwin-universal` |
+| Linux    | x64          | `@notebooklm-client/notebooklm-linux-x64` |
+| Linux    | ARM64        | `@notebooklm-client/notebooklm-linux-arm64` |
+| Windows  | x64          | `@notebooklm-client/notebooklm-win32-x64` |
+| Windows  | ARM64        | `@notebooklm-client/notebooklm-win32-arm64` |
 
 ## Quick Start
 
@@ -50,13 +50,13 @@ If the platform-specific package failed to install, you can install it manually:
 
 ```bash
 # For Linux x64
-npm install @missdeer/notebooklm-linux-x64
+npm install @notebooklm-client/notebooklm-linux-x64
 
 # For macOS
-npm install @missdeer/notebooklm-darwin-universal
+npm install @notebooklm-client/notebooklm-darwin-universal
 
 # For Windows x64
-npm install @missdeer/notebooklm-win32-x64
+npm install @notebooklm-client/notebooklm-win32-x64
 ```
 
 ## License

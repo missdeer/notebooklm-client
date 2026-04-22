@@ -43,10 +43,10 @@
     "arm64"
   ],
   "optionalDependencies": {
-    "@missdeer/notebooklm-darwin-universal": "0.1.0",
-    "@missdeer/notebooklm-linux-x64": "0.1.0",
-    "@missdeer/notebooklm-linux-arm64": "0.1.0",
-    "@missdeer/notebooklm-win32-x64": "0.1.0",
-    "@missdeer/notebooklm-win32-arm64": "0.1.0"
+    "@notebooklm-client/notebooklm-darwin-universal": "0.1.0",
+    "@notebooklm-client/notebooklm-linux-x64": "0.1.0",
+    "@notebooklm-client/notebooklm-linux-arm64": "0.1.0",
+    "@notebooklm-client/notebooklm-win32-x64": "0.1.0",
+    "@notebooklm-client/notebooklm-win32-arm64": "0.1.0"
   }
 }

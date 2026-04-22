@@ -1,4 +1,4 @@
-# @missdeer/notebooklm-linux-x64
+# @notebooklm-client/notebooklm-linux-x64
 
 Platform-specific binary for [notebooklm](https://github.com/missdeer/notebooklm-client) (Linux x64).
 
