@@ -1,0 +1,52 @@
+{
+  "name": "@missdeer/notebooklm",
+  "version": "0.1.0",
+  "description": "CLI client for Google NotebookLM — create notebooks, add sources, generate audio/reports/slides and more",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/missdeer/notebooklm-client.git"
+  },
+  "author": "missdeer",
+  "license": "GPL-3.0-only OR LicenseRef-Commercial",
+  "bugs": {
+    "url": "https://github.com/missdeer/notebooklm-client/issues"
+  },
+  "homepage": "https://github.com/missdeer/notebooklm-client#readme",
+  "keywords": [
+    "notebooklm",
+    "google",
+    "podcast",
+    "audio",
+    "notebook",
+    "cli"
+  ],
+  "bin": {
+    "notebooklm": "run.js"
+  },
+  "files": [
+    "run.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=14.14.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "optionalDependencies": {
+    "@missdeer/notebooklm-darwin-universal": "0.1.0",
+    "@missdeer/notebooklm-linux-x64": "0.1.0",
+    "@missdeer/notebooklm-linux-arm64": "0.1.0",
+    "@missdeer/notebooklm-win32-x64": "0.1.0",
+    "@missdeer/notebooklm-win32-arm64": "0.1.0"
+  }
+}

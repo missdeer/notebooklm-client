@@ -1,0 +1,23 @@
+{
+  "name": "@missdeer/notebooklm-win32-x64",
+  "version": "0.1.0",
+  "description": "Platform-specific binary for notebooklm (Windows x64)",
+  "license": "GPL-3.0-only OR LicenseRef-Commercial",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/missdeer/notebooklm-client.git"
+  },
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "files": [
+    "bin/notebooklm.exe"
+  ],
+  "preferUnplugged": true,
+  "publishConfig": {
+    "access": "public"
+  }
+}

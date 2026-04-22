@@ -36,6 +36,9 @@ jobs:
 
   build-windows:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v4
 
@@ -47,14 +50,14 @@ jobs:
       - name: Build
         env:
           GOOS: windows
-          GOARCH: amd64
-        run: go build -ldflags="-s -w" -o notebooklm-windows-amd64.exe ./cmd/notebooklm
+          GOARCH: ${{ matrix.goarch }}
+        run: go build -ldflags="-s -w" -o notebooklm-windows-${{ matrix.goarch }}.exe ./cmd/notebooklm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: notebooklm-windows-amd64
-          path: notebooklm-windows-amd64.exe
+          name: notebooklm-windows-${{ matrix.goarch }}
+          path: notebooklm-windows-${{ matrix.goarch }}.exe
 
   build-darwin:
     runs-on: macos-latest
@@ -102,3 +105,33 @@ jobs:
         with:
           files: artifacts/*
           generate_release_notes: true
+
+  npm-publish:
+    needs: [build-linux, build-windows, build-darwin]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: npm/artifacts
+          merge-multiple: true
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Publish npm packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd npm
+          chmod +x publish.sh
+          ./publish.sh "${{ steps.version.outputs.version }}"
