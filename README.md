@@ -122,13 +122,48 @@ npx @missdeer/notebooklm audio --transport curl --url "https://example.com" -o .
 --home <dir>    配置目录 (默认: ~/.notebooklm)
 ```
 
+## 代理
+
+支持 SOCKS5 / HTTP / HTTPS 代理，所有代理类型均支持 `user:pass@` 认证。代理在所有网络路径上生效：RPC 请求（HTTP/1.1 和 HTTP/2）、文件上传、产物下载以及 session token 刷新。
+
+### CLI 参数
+
+| 参数 | 说明 | 示例 |
+|---|---|---|
+| `--socks5-proxy` | SOCKS5 代理地址（省略 scheme 时自动补 `socks5://`） | `--socks5-proxy 127.0.0.1:1080` |
+| `--http-proxy` | HTTP 代理地址（省略 scheme 时自动补 `http://`） | `--http-proxy 127.0.0.1:8080` |
+| `--https-proxy` | HTTPS 代理地址（省略 scheme 时自动补 `https://`） | `--https-proxy 127.0.0.1:8443` |
+| `--proxy` | 通用代理 URL（需自带 scheme） | `--proxy socks5://user:pass@host:1080` |
+
+### 解析优先级
+
+CLI 参数优先于环境变量，依次检查：
+
+1. `--socks5-proxy`
+2. `--http-proxy`
+3. `--https-proxy`
+4. `--proxy`
+5. 环境变量 `SOCKS5_PROXY` → `HTTP_PROXY` → `HTTPS_PROXY` → `ALL_PROXY`（大小写均可）
+
+### 示例
+
+```bash
+# SOCKS5 with authentication
+npx @missdeer/notebooklm list --socks5-proxy user:pass@127.0.0.1:1080
+
+# HTTP proxy via environment
+HTTP_PROXY=http://127.0.0.1:8080 npx @missdeer/notebooklm list
+```
+
+> **注意**：`browser` transport（rod）通过 Chrome 的 `--proxy-server` 传递代理，该参数**不支持**内嵌凭据。若需代理认证，请使用 `http`/`curl` transport。
+
 ## 环境变量
 
 | 变量 | 说明 |
 |---|---|
 | `NOTEBOOKLM_HOME` | 覆盖默认配置目录 |
 | `NOTEBOOKLM_AUTH_JSON` | 内联 session JSON（跳过文件加载） |
-| `HTTPS_PROXY` / `ALL_PROXY` | 代理 URL |
+| `SOCKS5_PROXY` / `HTTP_PROXY` / `HTTPS_PROXY` / `ALL_PROXY` | 代理 URL（支持 socks5/http/https，可带 `user:pass@`） |
 
 ## Session 管理
 
