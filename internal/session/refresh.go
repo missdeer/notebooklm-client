@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/missdeer/notebooklm-client/internal/rpc"
 	"github.com/missdeer/notebooklm-client/internal/types"
@@ -67,14 +68,22 @@ func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpCl
 	fsidMatch := reFSID.FindStringSubmatch(html)
 	langMatch := reLang.FindStringSubmatch(html)
 
-	updatedCookies := MergeCookies(session.Cookies, resp.Header["Set-Cookie"])
+	// Preserve Expires metadata on unchanged cookies: start from the structured
+	// jar when available, falling back to an inferred jar only for legacy
+	// sessions that never stored a jar. Then merge Set-Cookie headers with full
+	// attribute parsing (Expires, Max-Age, deletion semantics).
+	baseJar := session.CookieJar
+	if len(baseJar) == 0 && session.Cookies != "" {
+		baseJar = InferCookieJar(session.Cookies)
+	}
+	mergedJar := MergeCookieJar(baseJar, resp.Header["Set-Cookie"], time.Now().UTC())
 
 	refreshed := types.NotebookRpcSession{
 		AT:        atMatch[1],
 		BL:        orDefault(blMatch, session.BL),
 		FSID:      orDefault(fsidMatch, session.FSID),
-		Cookies:   updatedCookies,
-		CookieJar: InferCookieJar(updatedCookies),
+		Cookies:   FlattenCookies(mergedJar),
+		CookieJar: mergedJar,
 		UserAgent: session.UserAgent,
 		Language:  extractLang(langMatch, session.Language),
 	}
@@ -88,30 +97,6 @@ func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpCl
 	}
 
 	return &refreshed, nil
-}
-
-// MergeCookies merges existing cookies with new Set-Cookie headers.
-func MergeCookies(existing string, setCookieHeaders []string) string {
-	cookieMap := make(map[string]string)
-	for _, pair := range strings.Split(existing, "; ") {
-		eq := strings.Index(pair, "=")
-		if eq > 0 {
-			cookieMap[pair[:eq]] = pair[eq+1:]
-		}
-	}
-	for _, h := range setCookieHeaders {
-		nameValue, _, _ := strings.Cut(h, ";")
-		nameValue = strings.TrimSpace(nameValue)
-		eq := strings.Index(nameValue, "=")
-		if eq > 0 {
-			cookieMap[strings.TrimSpace(nameValue[:eq])] = strings.TrimSpace(nameValue[eq+1:])
-		}
-	}
-	parts := make([]string, 0, len(cookieMap))
-	for k, v := range cookieMap {
-		parts = append(parts, k+"="+v)
-	}
-	return strings.Join(parts, "; ")
 }
 
 func orDefault(match []string, fallback string) string {

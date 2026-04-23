@@ -34,7 +34,22 @@ npx @missdeer/notebooklm export-session --chrome-path "/path/to/browser"
 
 # 方式二：从 TypeScript 版本导入已有 session
 npx @missdeer/notebooklm import-session ~/.notebooklm/session.json
+
+# 方式三：从已登录的 Firefox/Safari 或 Netscape cookies.txt 引导 session（无需启动浏览器）
+npx @missdeer/notebooklm import-cookies                             # 自动扫描所有 Firefox profile + macOS Safari
+npx @missdeer/notebooklm import-cookies --browser firefox           # 只扫 Firefox 的全部 profile
+npx @missdeer/notebooklm import-cookies --browser firefox --profile ~/.mozilla/firefox/abc.default-release
+npx @missdeer/notebooklm import-cookies --browser safari            # 仅 macOS
+npx @missdeer/notebooklm import-cookies --file ~/cookies.txt        # 任何 Netscape cookies.txt 导出
 ```
+
+> **关于 `import-cookies`**：只读取 `google.com` / `youtube.com` / `googleusercontent.com` 域的 cookie，拿到后立即用它们向 NotebookLM 换取 `at`/`bl`/`fsid`，最后写入 `session.json`。全流程**不启动浏览器**，适合服务器 / CI / 无图形环境。
+>
+> - **不带任何参数**：扫描默认路径下所有 Firefox profile（Windows `%APPDATA%\Mozilla\Firefox\Profiles`、macOS `~/Library/Application Support/Firefox/Profiles`、Linux `~/.mozilla/firefox` 及 XDG / snap / flatpak 变体）以及 macOS 上的 Safari，合并所有 profile 的 cookie。
+> - **同一个 cookie 在多个 profile 中出现时**：按 Firefox `lastAccessed` / Safari `creation_date` 取**最新**一份，确保拿到的是你当前实际使用的账号。命令末尾会打印每个来源贡献了几个 cookie。
+> - **Firefox**：直接读 `cookies.sqlite`（自动复制以避开文件锁），兼容 schema v16+ 的毫秒级过期时间。
+> - **Safari**：直接解析 `Cookies.binarycookies`（仅 macOS）。
+> - **Chrome/Edge/Brave**：**不直接支持**——Chrome 127+ 的 App-Bound Encryption 需要 Chrome 自己解密。请先用浏览器扩展（如「Get cookies.txt LOCALLY」）或 `yt-dlp --cookies-from-browser chrome --cookies cookies.txt` 导出成 Netscape 格式，再走 `--file` 路径。
 
 ### 2. 使用
 
@@ -91,14 +106,51 @@ npx @missdeer/notebooklm refresh-session
 npx @missdeer/notebooklm diagnose
 ```
 
+## 浏览器依赖
+
+并非所有命令都需要启动浏览器。多数日常操作仅用 HTTP 调用，速度更快、资源更省。
+
+### 必须启动浏览器
+
+| 命令 | 说明 |
+|---|---|
+| `export-session` | 首次登录 Google 账号、导出 session，强制使用 `browser` transport |
+
+### 完全不需要浏览器（纯 HTTP）
+
+| 命令 | 说明 |
+|---|---|
+| `import-session` | 从 JSON 文件/字符串导入 session，纯文件 I/O |
+| `import-cookies` | 从 Firefox/Safari profile 或 Netscape cookies.txt 引导 session；读 cookie + 一次 HTTP GET |
+| `refresh-session` | 用长期 cookie 刷新短期 token，仅发一次 GET 请求 |
+| `session-status`  | 展示 session.json 中 cookie 的过期时间 |
+
+> 只要 `~/.notebooklm/session.json` 中的长期 cookie 未过期，`refresh-session` 就可以在无浏览器环境（如服务器、CI）中续期 `at`/`bl`/`fsid`。若 cookie 也失效，才需要重新跑 `export-session`（或 `import-cookies`）。
+
+### 可选（取决于 `--transport`）
+
+以下命令默认使用 `auto`（会优先选非浏览器的 transport），也可显式指定 `--transport browser` 以获得 100% TLS 指纹保真：
+
+`list` · `audio` · `report` · `slides` · `quiz` · `flashcards` · `video` · `infographic` · `data-table` · `analyze` · `chat` · `detail` · `delete` · `source add` · `diagnose`
+
+```bash
+# 默认路径（不启动浏览器）
+npx @missdeer/notebooklm list
+
+# 显式强制用浏览器（需要本机有 Chrome/Edge/Brave/Chromium，或让 rod 自动下载 Chromium)
+npx @missdeer/notebooklm list --transport browser
+```
+
 ## Transport 模式
 
-| 模式 | 说明 | TLS 保真度 |
-|---|---|---|
-| `auto` (默认) | 自动选择最佳可用 transport | — |
-| `http` | utls 原生 Go TLS | 99% |
-| `curl` | curl-impersonate 子进程 | 100% |
-| `browser` | rod 启动真实浏览器 | 100% |
+| 模式 | 说明 | TLS 保真度 | 需要浏览器 |
+|---|---|---|---|
+| `auto` (默认) | 自动选择最佳可用 transport（优先非浏览器） | — | 否* |
+| `http` | utls 原生 Go TLS | 99% | 否 |
+| `curl` | curl-impersonate 子进程 | 100% | 否（需要 curl-impersonate 二进制） |
+| `browser` | rod 启动真实浏览器 | 100% | 是 |
+
+\* `auto` 仅在其他 transport 都不可用时才会回退到 `browser`。
 
 ```bash
 npx @missdeer/notebooklm list --transport http

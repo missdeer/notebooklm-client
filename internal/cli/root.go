@@ -22,7 +22,9 @@ func init() {
 
 	rootCmd.AddCommand(exportSessionCmd)
 	rootCmd.AddCommand(importSessionCmd)
+	rootCmd.AddCommand(importCookiesCmd)
 	rootCmd.AddCommand(refreshSessionCmd)
+	rootCmd.AddCommand(sessionStatusCmd)
 	rootCmd.AddCommand(audioCmd)
 	rootCmd.AddCommand(analyzeCmd)
 	rootCmd.AddCommand(reportCmd)

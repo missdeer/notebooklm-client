@@ -218,6 +218,11 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		if !isGoogleDomain(c.Domain) {
 			continue
 		}
+		var expires *time.Time
+		if !c.Session && c.Expires > 0 {
+			t := c.Expires.Time().UTC()
+			expires = &t
+		}
 		jar = append(jar, types.SessionCookie{
 			Name:     c.Name,
 			Value:    c.Value,
@@ -225,6 +230,8 @@ func (t *RodTransport) Init(ctx context.Context) error {
 			Path:     c.Path,
 			Secure:   c.Secure,
 			HttpOnly: c.HTTPOnly,
+			Expires:  expires,
+			Session:  c.Session,
 		})
 		// Deduplicate for flat cookie string
 		key := c.Name + "=" + c.Value

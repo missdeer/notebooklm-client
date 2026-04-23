@@ -1,5 +1,7 @@
 package types
 
+import "time"
+
 type SourceType string
 
 const (
@@ -146,12 +148,17 @@ const (
 
 // SessionCookie represents a domain-scoped cookie for cross-domain requests.
 type SessionCookie struct {
-	Name     string `json:"name"`
-	Value    string `json:"value"`
-	Domain   string `json:"domain"`
-	Path     string `json:"path,omitempty"`
-	Secure   bool   `json:"secure,omitempty"`
-	HttpOnly bool   `json:"httpOnly,omitempty"`
+	Name     string     `json:"name"`
+	Value    string     `json:"value"`
+	Domain   string     `json:"domain"`
+	Path     string     `json:"path,omitempty"`
+	Secure   bool       `json:"secure,omitempty"`
+	HttpOnly bool       `json:"httpOnly,omitempty"`
+	// Expires is the cookie's absolute expiration time (UTC). nil means the
+	// value was not captured (legacy sessions) or this is a session cookie.
+	Expires *time.Time `json:"expires,omitempty"`
+	// Session is true for browser-session cookies (no persistent expiration).
+	Session  bool       `json:"session,omitempty"`
 }
 
 // NotebookRpcSession holds all tokens and cookies for API calls.
