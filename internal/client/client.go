@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -107,10 +106,10 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 	}
 
 	sessionPath := opts.SessionPath
-	proxyURL := opts.Proxy
+	proxyClient := transport.NewProxyHTTPClient(opts.Proxy)
 	onSessionExpired := func(ctx context.Context) (*types.NotebookRpcSession, error) {
 		log.Println("NotebookLM: Token expired, auto-refreshing...")
-		refreshed, err := session.RefreshTokens(ctx, *sess, nil, sessionPath)
+		refreshed, err := session.RefreshTokens(ctx, *sess, proxyClient, sessionPath)
 		if err != nil {
 			fromDisk, loadErr := session.Load(sessionPath)
 			if loadErr == nil && fromDisk != nil {
@@ -122,7 +121,6 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 		sess = refreshed
 		return refreshed, nil
 	}
-	_ = proxyURL
 
 	t, err := transport.NewUTLSTransport(transport.UTLSTransportOptions{
 		Session:          *sess,
@@ -309,7 +307,7 @@ func (c *NotebookClient) AddFileSource(ctx context.Context, notebookID, filePath
 	return api.AddFileSource(ctx, c.rpcCaller(), api.FileUploadDeps{
 		Session:    sess,
 		Proxy:      c.proxy,
-		HTTPClient: &http.Client{},
+		HTTPClient: transport.NewProxyHTTPClient(c.proxy),
 	}, notebookID, filePath)
 }
 
@@ -361,8 +359,9 @@ func (c *NotebookClient) PollResearchResults(ctx context.Context, notebookID str
 func (c *NotebookClient) DownloadFile(ctx context.Context, downloadURL, outputDir, filename string) (string, error) {
 	sess := c.transport.GetSession()
 	return download.DownloadFileHTTP(ctx, download.Deps{
-		Session: sess,
-		Proxy:   c.proxy,
+		Session:    sess,
+		Proxy:      c.proxy,
+		HTTPClient: transport.NewProxyHTTPClient(c.proxy),
 	}, downloadURL, outputDir, filename)
 }
 

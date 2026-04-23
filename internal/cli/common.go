@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/missdeer/notebooklm-client/internal/client"
@@ -16,6 +17,9 @@ func addTransportFlags(cmd *cobra.Command) {
 	cmd.Flags().String("transport", "auto", "Transport mode: auto, http, browser, curl")
 	cmd.Flags().String("session-path", "", "Session file path")
 	cmd.Flags().String("proxy", "", "Proxy URL")
+	cmd.Flags().String("socks5-proxy", "", "SOCKS5 proxy address (e.g. 127.0.0.1:1080)")
+	cmd.Flags().String("http-proxy", "", "HTTP proxy address (e.g. 127.0.0.1:8080)")
+	cmd.Flags().String("https-proxy", "", "HTTPS proxy address (e.g. 127.0.0.1:8443)")
 	cmd.Flags().String("profile", "", "Chrome profile directory")
 	cmd.Flags().Bool("headless", false, "Run headless")
 	cmd.Flags().String("chrome-path", "", "Chrome executable path")
@@ -62,15 +66,40 @@ func buildSource(cmd *cobra.Command) (types.SourceInput, error) {
 	return types.SourceInput{}, fmt.Errorf("no source specified")
 }
 
+// normalizeProxyURL prepends the given scheme if the value has no scheme.
+func normalizeProxyURL(value, scheme string) string {
+	if strings.Contains(value, "://") {
+		return value
+	}
+	return scheme + "://" + value
+}
+
 func resolveProxy(cmd *cobra.Command) string {
-	p, _ := cmd.Flags().GetString("proxy")
-	if p != "" {
+	// CLI flags take priority
+	if p, _ := cmd.Flags().GetString("socks5-proxy"); p != "" {
+		return normalizeProxyURL(p, "socks5")
+	}
+	if p, _ := cmd.Flags().GetString("http-proxy"); p != "" {
+		return normalizeProxyURL(p, "http")
+	}
+	if p, _ := cmd.Flags().GetString("https-proxy"); p != "" {
+		return normalizeProxyURL(p, "https")
+	}
+	if p, _ := cmd.Flags().GetString("proxy"); p != "" {
 		return p
 	}
-	if p = os.Getenv("HTTPS_PROXY"); p != "" {
-		return p
+	// Environment variables fallback
+	for _, key := range []string{
+		"SOCKS5_PROXY", "socks5_proxy",
+		"HTTP_PROXY", "http_proxy",
+		"HTTPS_PROXY", "https_proxy",
+		"ALL_PROXY", "all_proxy",
+	} {
+		if p := os.Getenv(key); p != "" {
+			return p
+		}
 	}
-	return os.Getenv("ALL_PROXY")
+	return ""
 }
 
 func withClient(cmd *cobra.Command, fn func(context.Context, *client.NotebookClient) error) error {

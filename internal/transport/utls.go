@@ -142,6 +142,8 @@ func (t *UTLSTransport) Close() error {
 
 func (t *UTLSTransport) createHTTPClient() *http.Client {
 	dialer := &net.Dialer{}
+	// Use proxy-aware dial so both h1 and h2 route through the proxy.
+	dialConn := proxyDialContext(t.proxy, dialer)
 
 	dialTLS := func(ctx context.Context, network, addr string) (net.Conn, error) {
 		host, _, err := net.SplitHostPort(addr)
@@ -149,7 +151,7 @@ func (t *UTLSTransport) createHTTPClient() *http.Client {
 			host = addr
 		}
 
-		rawConn, err := dialer.DialContext(ctx, network, addr)
+		rawConn, err := dialConn(ctx, network, addr)
 		if err != nil {
 			return nil, err
 		}
@@ -176,12 +178,6 @@ func (t *UTLSTransport) createHTTPClient() *http.Client {
 	// HTTP/1.1 fallback transport
 	h1Transport := &http.Transport{
 		DialTLSContext: dialTLS,
-	}
-
-	if t.proxy != "" {
-		if proxyURL, err := url.Parse(t.proxy); err == nil {
-			h1Transport.Proxy = http.ProxyURL(proxyURL)
-		}
 	}
 
 	// Use a round-tripper that picks h2 or h1 based on ALPN result
