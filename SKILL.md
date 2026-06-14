@@ -47,6 +47,11 @@ Recognize requests like:
 - "Add / list / update / delete notes in notebook X"
 - "Make notebook X public" / "Share notebook X with someone@example.com"
 - "Start web/deep research on topic Y" / "Import the research results into notebook X"
+- "Describe / summarize notebook X" (AI-generated overview + suggested prompts)
+- "Show / dump the raw text of source Y"
+- "Delete this artifact" / "Revise slide N of this deck to say ..."
+- "Export this report to Google Docs" / "Export this data table to Google Sheets"
+- "Switch chat to learning-guide style / shorter responses" (configure chat)
 
 ## CLI Commands
 
@@ -77,6 +82,12 @@ All commands use `--transport auto` for headless mode (Go uses native uTLS, no s
 | Start research | `notebooklm research start <id> --transport auto --query "..." --mode fast` (or `deep`) |
 | Poll research results | `notebooklm research status <id> --transport auto` |
 | Import research into notebook | `notebooklm research import <id> <research-id> --transport auto` |
+| Notebook AI summary + prompts | `notebooklm describe <id> --transport auto [--json]` |
+| Source raw indexed text | `notebooklm source content <source-id> --transport auto [--json]` |
+| Delete studio artifact(s) | `notebooklm studio delete <artifact-id...> --transport auto` |
+| Revise slide deck | `notebooklm studio revise <artifact-id> --transport auto --slide "0:Tighten intro" --slide "3:Add chart"` |
+| Export artifact to Docs/Sheets | `notebooklm studio export <notebook-id> <artifact-id> --transport auto --format docs --title "Q2 Brief"` |
+| Configure chat goal/length | `notebooklm chat configure <id> --transport auto --goal learning_guide --response-length longer` |
 | Chat with citations | `notebooklm chat <id> --transport auto --question "..." --with-citations` |
 | Chat scoped to sources | `notebooklm chat <id> --transport auto --question "..." --source-ids a,b,c` |
 | Podcast from URL | `notebooklm audio --transport auto --url "https://..." -o /tmp/audio -l en` |
@@ -149,7 +160,7 @@ NOTEBOOKLM_HOME=~/.notebooklm-work notebooklm list --transport auto
 
 ## Autonomy Rules
 
-**Run automatically:** `list`, `detail`, `diagnose`, `session-status`, `source list`, `source summary`, `note list`, `share status`, `research status`
+**Run automatically:** `list`, `detail`, `describe`, `diagnose`, `session-status`, `source list`, `source summary`, `source content`, `note list`, `share status`, `research status`
 
 **Ask before running:**
 - Generation commands (long-running, creates notebook)
@@ -158,6 +169,10 @@ NOTEBOOKLM_HOME=~/.notebooklm-work notebooklm list --transport auto
 - `note create` / `note update` / `note delete` (modifies notebook content)
 - `share public` / `share invite` (changes visibility / invites collaborators — visible to others)
 - `research start` / `research import` (kicks off long work / writes new sources)
+- `studio delete` (irreversible artifact deletion)
+- `studio revise` (creates a new slide-deck artifact; counts against daily quota)
+- `studio export` (writes a new Google Doc/Sheet in the user's Drive)
+- `chat configure` (changes notebook-scoped chat goal/length, persists server-side)
 - `delete` (irreversible)
 - `refresh-session` (rewrites session file)
 
@@ -236,6 +251,41 @@ notebooklm share public <id> --transport auto --enable              # anyone wit
 notebooklm share invite <id> --transport auto \
   --email collaborator@example.com --permission editor --notify     # direct invite
 ```
+
+### Triage a notebook before opening it
+```bash
+notebooklm describe <id> --transport auto                # AI overview to stdout + suggested prompts on stderr
+notebooklm source list <id> --transport auto             # what's inside
+notebooklm source content <source-id> --transport auto   # raw text dump for grep/diff
+```
+`describe` returns the notebook summary plus a few seed chat prompts. `source content` is the raw indexed text — useful for scripted search without going through chat.
+
+### Revise a slide deck after the first draft
+```bash
+notebooklm studio revise <artifact-id> --transport auto \
+  --slide "0:Tighten the intro to two sentences" \
+  --slide "3:Replace the bar chart with a timeline"
+```
+Creates a NEW slide-deck artifact with the instructions applied. The original is untouched. Use `studio delete <old-artifact-id>` afterwards if you want to discard the first draft.
+
+### Export a report / data table to Google Drive
+```bash
+notebooklm studio export <notebook-id> <artifact-id> --transport auto \
+  --format docs   --title "Q2 Strategy Brief"        # report → Google Docs
+notebooklm studio export <notebook-id> <artifact-id> --transport auto \
+  --format sheets --title "Competitor Matrix"        # data table → Google Sheets
+```
+Prints the created document URL to stdout.
+
+### Tune the chat for a notebook
+```bash
+notebooklm chat configure <id> --transport auto \
+  --goal learning_guide --response-length longer
+# or a custom system prompt:
+notebooklm chat configure <id> --transport auto \
+  --goal custom --custom-prompt "Answer like a sceptical reviewer; cite sources."
+```
+Persists server-side, so subsequent `chat` calls (and the web UI) inherit the new style until you change it again.
 
 ## Error Handling
 

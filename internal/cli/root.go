@@ -44,6 +44,8 @@ func init() {
 	rootCmd.AddCommand(noteCmd)
 	rootCmd.AddCommand(shareCmd)
 	rootCmd.AddCommand(researchCmd)
+	rootCmd.AddCommand(studioCmd)
+	rootCmd.AddCommand(notebookDescribeCmd)
 	rootCmd.AddCommand(diagnoseCmd)
 }
 

@@ -82,6 +82,90 @@ func RenameArtifact(ctx context.Context, call RpcCaller, artifactID, newTitle st
 	return nil
 }
 
+// SlideRevision pairs a 0-based slide index with a free-form instruction
+// describing the change to apply.
+type SlideRevision struct {
+	Index       int
+	Instruction string
+}
+
+// ReviseSlideDeck submits per-slide revision instructions for an existing slide
+// deck artifact. The server creates a NEW slide-deck artifact with the changes
+// applied; the original artifact is left untouched.
+func ReviseSlideDeck(ctx context.Context, call RpcCaller, artifactID string, revisions []SlideRevision) (newArtifactID, newTitle string, err error) {
+	pairs := make([]any, len(revisions))
+	for i, r := range revisions {
+		pairs[i] = []any{r.Index, r.Instruction}
+	}
+	raw, err := call(ctx, rpc.ReviseSlide,
+		[]any{copySlice(rpc.PlatformWeb), artifactID, []any{pairs}},
+		"")
+	if err != nil {
+		return "", "", fmt.Errorf("revise slide deck: %w", err)
+	}
+	envelopes := parser.ParseEnvelopes(raw)
+	if len(envelopes) == 0 {
+		return "", "", nil
+	}
+	first := envelopes[0]
+	if len(first) == 0 {
+		return "", "", nil
+	}
+	entry, ok := first[0].([]any)
+	if !ok || len(entry) == 0 {
+		return "", "", nil
+	}
+	newArtifactID, _ = entry[0].(string)
+	if len(entry) > 1 {
+		newTitle, _ = entry[1].(string)
+	}
+	return newArtifactID, newTitle, nil
+}
+
+// ExportArtifact exports an artifact to Google Docs (exportType="docs") or
+// Sheets (exportType="sheets") and returns the created document URL.
+func ExportArtifact(ctx context.Context, call RpcCaller, notebookID, artifactID, title, exportType string) (string, error) {
+	code := 1 // docs
+	if exportType == "sheets" {
+		code = 2
+	}
+	if title == "" {
+		title = "NotebookLM Export"
+	}
+	raw, err := call(ctx, rpc.ExportArtifact,
+		[]any{nil, artifactID, nil, title, code},
+		"/notebook/"+notebookID)
+	if err != nil {
+		return "", fmt.Errorf("export artifact: %w", err)
+	}
+	envelopes := parser.ParseEnvelopes(raw)
+	if len(envelopes) == 0 {
+		return "", nil
+	}
+	first := envelopes[0]
+	if len(first) == 0 {
+		return "", nil
+	}
+	// Response shapes observed: [[[url]]], [[url]], or [url]
+	switch v := first[0].(type) {
+	case string:
+		return v, nil
+	case []any:
+		if len(v) == 0 {
+			return "", nil
+		}
+		if s, ok := v[0].(string); ok {
+			return s, nil
+		}
+		if sub, ok := v[0].([]any); ok && len(sub) > 0 {
+			if s, ok := sub[0].(string); ok {
+				return s, nil
+			}
+		}
+	}
+	return "", nil
+}
+
 func GetInteractiveHTML(ctx context.Context, call RpcCaller, artifactID string) (string, error) {
 	raw, err := call(ctx, rpc.GetInteractiveHTML, []any{artifactID}, "")
 	if err != nil {

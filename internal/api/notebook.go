@@ -59,6 +59,95 @@ func DeleteNotebook(ctx context.Context, call RpcCaller, notebookID string) erro
 	return nil
 }
 
+// NotebookSummary holds the AI-generated notebook overview plus suggested chat
+// topic prompts returned by VfAZjd.
+type NotebookSummary struct {
+	Summary string
+	Topics  []TopicSuggestion
+}
+
+type TopicSuggestion struct {
+	Question string
+	Prompt   string
+}
+
+func GetNotebookSummary(ctx context.Context, call RpcCaller, notebookID string) (NotebookSummary, error) {
+	raw, err := call(ctx, rpc.GetNotebookSummary,
+		[]any{notebookID, copySlice(rpc.PlatformWeb)},
+		"/notebook/"+notebookID)
+	if err != nil {
+		return NotebookSummary{}, fmt.Errorf("get notebook summary: %w", err)
+	}
+	envelopes := parser.ParseEnvelopes(raw)
+	if len(envelopes) == 0 {
+		return NotebookSummary{}, nil
+	}
+	first := envelopes[0]
+	var out NotebookSummary
+	if len(first) > 0 {
+		if arr, ok := first[0].([]any); ok && len(arr) > 0 {
+			out.Summary, _ = arr[0].(string)
+		}
+	}
+	if len(first) > 1 {
+		if outerTopics, ok := first[1].([]any); ok && len(outerTopics) > 0 {
+			if topics, ok := outerTopics[0].([]any); ok {
+				for _, t := range topics {
+					arr, ok := t.([]any)
+					if !ok || len(arr) < 2 {
+						continue
+					}
+					q, _ := arr[0].(string)
+					p, _ := arr[1].(string)
+					out.Topics = append(out.Topics, TopicSuggestion{Question: q, Prompt: p})
+				}
+			}
+		}
+	}
+	return out, nil
+}
+
+// ConfigureChat updates the notebook-scoped chat goal/style and response length.
+// Shares the s0tc2d RPC with RenameNotebook but populates positional slot 7
+// (chat settings) instead of slot 3 (title). goal: "default" | "custom" |
+// "learning_guide"; responseLength: "default" | "longer" | "shorter".
+func ConfigureChat(ctx context.Context, call RpcCaller, notebookID, goal, customPrompt, responseLength string) error {
+	goalCode := 1
+	switch goal {
+	case "custom":
+		goalCode = 2
+	case "learning_guide":
+		goalCode = 3
+	}
+	if goal == "custom" && customPrompt == "" {
+		return fmt.Errorf("configure chat: customPrompt is required when goal=custom")
+	}
+
+	lengthCode := 1
+	switch responseLength {
+	case "longer":
+		lengthCode = 4
+	case "shorter":
+		lengthCode = 5
+	}
+
+	var goalSetting []any
+	if goal == "custom" {
+		goalSetting = []any{goalCode, customPrompt}
+	} else {
+		goalSetting = []any{goalCode}
+	}
+	chatSettings := []any{goalSetting, []any{lengthCode}}
+
+	_, err := call(ctx, rpc.RenameNotebook,
+		[]any{notebookID, []any{[]any{nil, nil, nil, nil, nil, nil, nil, chatSettings}}},
+		"/notebook/"+notebookID)
+	if err != nil {
+		return fmt.Errorf("configure chat: %w", err)
+	}
+	return nil
+}
+
 func RenameNotebook(ctx context.Context, call RpcCaller, notebookID, newTitle string) error {
 	_, err := call(ctx, rpc.RenameNotebook,
 		[]any{notebookID, []any{[]any{nil, nil, nil, []any{nil, newTitle}}}},

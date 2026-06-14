@@ -177,6 +177,83 @@ func DeleteSource(ctx context.Context, call RpcCaller, sourceID string) error {
 	return nil
 }
 
+// SourceContent holds the raw indexed text plus identifying metadata for a
+// single source. Returned by GetSourceContent (RPC hizoJc).
+type SourceContent struct {
+	ID         string
+	Title      string
+	SourceType int
+	URL        string
+	Content    string
+}
+
+func GetSourceContent(ctx context.Context, call RpcCaller, sourceID string) (SourceContent, error) {
+	raw, err := call(ctx, rpc.GetSourceContent,
+		[]any{[]any{sourceID}, copySlice(rpc.PlatformWeb), copySlice(rpc.PlatformWeb)},
+		"/")
+	if err != nil {
+		return SourceContent{}, fmt.Errorf("get source content: %w", err)
+	}
+	envelopes := parser.ParseEnvelopes(raw)
+	if len(envelopes) == 0 {
+		return SourceContent{}, nil
+	}
+	first := envelopes[0]
+	out := SourceContent{ID: sourceID}
+
+	if len(first) > 0 {
+		if meta, ok := first[0].([]any); ok {
+			if len(meta) > 1 {
+				out.Title, _ = meta[1].(string)
+			}
+			if len(meta) > 2 {
+				if sub, ok := meta[2].([]any); ok {
+					if len(sub) > 4 {
+						if code, ok := sub[4].(float64); ok {
+							out.SourceType = int(code)
+						}
+					}
+					if len(sub) > 7 {
+						if urlInfo, ok := sub[7].([]any); ok && len(urlInfo) > 0 {
+							out.URL, _ = urlInfo[0].(string)
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if len(first) > 3 {
+		if wrapper, ok := first[3].([]any); ok && len(wrapper) > 0 {
+			if blocks, ok := wrapper[0].([]any); ok {
+				var parts []string
+				for _, b := range blocks {
+					if arr, ok := b.([]any); ok {
+						parts = append(parts, collectStrings(arr)...)
+					}
+				}
+				out.Content = strings.Join(parts, "\n\n")
+			}
+		}
+	}
+	return out, nil
+}
+
+func collectStrings(data []any) []string {
+	var out []string
+	for _, item := range data {
+		switch v := item.(type) {
+		case string:
+			if v != "" {
+				out = append(out, v)
+			}
+		case []any:
+			out = append(out, collectStrings(v)...)
+		}
+	}
+	return out
+}
+
 func GetSourceSummary(ctx context.Context, call RpcCaller, sourceID string) (string, error) {
 	raw, err := call(ctx, rpc.GetSourceSummary, []any{[]any{[]any{[]any{sourceID}}}}, "")
 	if err != nil {

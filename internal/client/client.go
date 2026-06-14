@@ -514,6 +514,30 @@ func (c *NotebookClient) ImportResearch(ctx context.Context, notebookID, researc
 	return api.ImportResearch(ctx, c.rpcCaller(), notebookID, researchID, results, report)
 }
 
+func (c *NotebookClient) DeleteArtifact(ctx context.Context, artifactID string) error {
+	return api.DeleteArtifact(ctx, c.rpcCaller(), artifactID)
+}
+
+func (c *NotebookClient) ReviseSlideDeck(ctx context.Context, artifactID string, revisions []api.SlideRevision) (string, string, error) {
+	return api.ReviseSlideDeck(ctx, c.rpcCaller(), artifactID, revisions)
+}
+
+func (c *NotebookClient) ExportArtifact(ctx context.Context, notebookID, artifactID, title, exportType string) (string, error) {
+	return api.ExportArtifact(ctx, c.rpcCaller(), notebookID, artifactID, title, exportType)
+}
+
+func (c *NotebookClient) GetNotebookSummary(ctx context.Context, notebookID string) (api.NotebookSummary, error) {
+	return api.GetNotebookSummary(ctx, c.rpcCaller(), notebookID)
+}
+
+func (c *NotebookClient) ConfigureChat(ctx context.Context, notebookID, goal, customPrompt, responseLength string) error {
+	return api.ConfigureChat(ctx, c.rpcCaller(), notebookID, goal, customPrompt, responseLength)
+}
+
+func (c *NotebookClient) GetSourceContent(ctx context.Context, sourceID string) (api.SourceContent, error) {
+	return api.GetSourceContent(ctx, c.rpcCaller(), sourceID)
+}
+
 func (c *NotebookClient) GenerateArtifact(ctx context.Context, notebookID string, sourceIDs []string, opts types.ArtifactOption) (string, string, error) {
 	sess := c.transport.GetSession()
 	lang := sess.Language
