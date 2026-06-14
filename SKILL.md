@@ -42,6 +42,11 @@ Recognize requests like:
 - "What notebooks do I have?"
 - "Add this PDF to my [company/topic] notebook"
 - "Attach this URL to notebook X"
+- "Create a new notebook called X" / "Rename notebook X to Y"
+- "List / delete / rename / refresh / summarize sources in notebook X"
+- "Add / list / update / delete notes in notebook X"
+- "Make notebook X public" / "Share notebook X with someone@example.com"
+- "Start web/deep research on topic Y" / "Import the research results into notebook X"
 
 ## CLI Commands
 
@@ -51,10 +56,27 @@ All commands use `--transport auto` for headless mode (Go uses native uTLS, no s
 |------|---------|
 | List notebooks | `notebooklm list --transport auto` |
 | Notebook details | `notebooklm detail <id> --transport auto` |
+| Create empty notebook | `notebooklm create [title] --transport auto` |
+| Rename notebook | `notebooklm rename <id> "New Title" --transport auto` |
 | Add source to existing notebook | `notebooklm source add <id> --transport auto --file ./paper.pdf` |
 | Add URL to existing notebook | `notebooklm source add <id> --transport auto --url "https://..."` |
+| List sources | `notebooklm source list <id> --transport auto` |
+| Delete source(s) | `notebooklm source delete <source-id...> --transport auto` |
+| Rename source | `notebooklm source rename <notebook-id> <source-id> "New Title" --transport auto` |
+| Refresh source (re-fetch URL/Drive) | `notebooklm source refresh <notebook-id> <source-id> --transport auto` |
+| Source summary (AI) | `notebooklm source summary <source-id> --transport auto` |
 | Delete notebooks | `notebooklm delete <id...> --transport auto` |
 | Chat | `notebooklm chat <id> --transport auto --question "..."` |
+| List notes | `notebooklm note list <id> --transport auto` |
+| Create note | `notebooklm note create <id> --transport auto --title "..." --content "..."` |
+| Update note | `notebooklm note update <id> <note-id> --transport auto --title "..." --content "..."` |
+| Delete note(s) | `notebooklm note delete <id> <note-id...> --transport auto` |
+| Share status (collaborators + public state) | `notebooklm share status <id> --transport auto` |
+| Public link on/off | `notebooklm share public <id> --transport auto --enable` (or `--disable`) |
+| Invite collaborator | `notebooklm share invite <id> --transport auto --email user@x.com --permission viewer` |
+| Start research | `notebooklm research start <id> --transport auto --query "..." --mode fast` (or `deep`) |
+| Poll research results | `notebooklm research status <id> --transport auto` |
+| Import research into notebook | `notebooklm research import <id> <research-id> --transport auto` |
 | Chat with citations | `notebooklm chat <id> --transport auto --question "..." --with-citations` |
 | Chat scoped to sources | `notebooklm chat <id> --transport auto --question "..." --source-ids a,b,c` |
 | Podcast from URL | `notebooklm audio --transport auto --url "https://..." -o /tmp/audio -l en` |
@@ -127,9 +149,17 @@ NOTEBOOKLM_HOME=~/.notebooklm-work notebooklm list --transport auto
 
 ## Autonomy Rules
 
-**Run automatically:** `list`, `detail`, `diagnose`, `session-status`
+**Run automatically:** `list`, `detail`, `diagnose`, `session-status`, `source list`, `source summary`, `note list`, `share status`, `research status`
 
-**Ask before running:** generation commands (long-running, creates notebook), `source add` (modifies user's notebook), `delete` (irreversible), `refresh-session` (rewrites session file)
+**Ask before running:**
+- Generation commands (long-running, creates notebook)
+- `create`, `rename` (modifies notebook)
+- `source add` / `source rename` / `source refresh` / `source delete` (modifies user's notebook)
+- `note create` / `note update` / `note delete` (modifies notebook content)
+- `share public` / `share invite` (changes visibility / invites collaborators — visible to others)
+- `research start` / `research import` (kicks off long work / writes new sources)
+- `delete` (irreversible)
+- `refresh-session` (rewrites session file)
 
 ## Common Workflows
 
@@ -181,6 +211,31 @@ notebooklm source add <notebook-id> --transport auto --file ./new-report.pdf
 notebooklm source add <notebook-id> --transport auto --url "https://static.cninfo.com.cn/finalpage/2026-04-16/1225107391.PDF"
 ```
 Use this when the user wants to extend a long-running topic/company notebook with a fresh document rather than creating a new throwaway notebook.
+
+### Create a notebook, add a source, take a note
+```bash
+ID=$(notebooklm create "Q2 Earnings" --transport auto)
+notebooklm source add "$ID" --transport auto --url "https://example.com/earnings.pdf"
+notebooklm note create "$ID" --transport auto --title "Key takeaways" --content "Revenue +18% YoY..."
+```
+`create` prints the new ID to stdout; status messages go to stderr, so `$(...)` capture is clean.
+
+### Deep research → import as sources
+```bash
+notebooklm research start <notebook-id> --transport auto --query "enterprise AI ROI" --mode deep
+# capture the printed researchID, then:
+notebooklm research status <notebook-id> --transport auto    # polls, prints JSON
+notebooklm research import <notebook-id> <research-id> --transport auto
+```
+`status` blocks until results are ready (default ~120 s timeout). `import` re-polls before writing so you can run it directly once `start` returns.
+
+### Share a notebook
+```bash
+notebooklm share status <id> --transport auto                       # current visibility
+notebooklm share public <id> --transport auto --enable              # anyone with link
+notebooklm share invite <id> --transport auto \
+  --email collaborator@example.com --permission editor --notify     # direct invite
+```
 
 ## Error Handling
 

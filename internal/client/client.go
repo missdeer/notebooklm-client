@@ -474,6 +474,46 @@ func (c *NotebookClient) GetSourceSummary(ctx context.Context, sourceID string) 
 	return api.GetSourceSummary(ctx, c.rpcCaller(), sourceID)
 }
 
+func (c *NotebookClient) RenameSource(ctx context.Context, notebookID, sourceID, newTitle string) error {
+	return api.RenameSource(ctx, c.rpcCaller(), notebookID, sourceID, newTitle)
+}
+
+func (c *NotebookClient) RefreshSource(ctx context.Context, notebookID, sourceID string) error {
+	return api.RefreshSourceData(ctx, c.rpcCaller(), notebookID, sourceID)
+}
+
+func (c *NotebookClient) ListNotes(ctx context.Context, notebookID string) ([]api.Note, error) {
+	return api.ListNotes(ctx, c.rpcCaller(), notebookID)
+}
+
+func (c *NotebookClient) CreateNote(ctx context.Context, notebookID, title, content string) (string, error) {
+	return api.CreateNote(ctx, c.rpcCaller(), notebookID, title, content)
+}
+
+func (c *NotebookClient) UpdateNote(ctx context.Context, notebookID, noteID, content, title string) error {
+	return api.UpdateNote(ctx, c.rpcCaller(), notebookID, noteID, content, title)
+}
+
+func (c *NotebookClient) DeleteNote(ctx context.Context, notebookID, noteID string) error {
+	return api.DeleteNote(ctx, c.rpcCaller(), notebookID, noteID)
+}
+
+func (c *NotebookClient) GetShareStatus(ctx context.Context, notebookID string) (any, error) {
+	return api.GetShareStatus(ctx, c.rpcCaller(), notebookID)
+}
+
+func (c *NotebookClient) ShareNotebookPublic(ctx context.Context, notebookID string, isPublic bool) error {
+	return api.ShareNotebook(ctx, c.rpcCaller(), notebookID, isPublic)
+}
+
+func (c *NotebookClient) ShareNotebookWithUser(ctx context.Context, notebookID, email, permission string, notify bool, message string) error {
+	return api.ShareNotebookWithUser(ctx, c.rpcCaller(), notebookID, email, permission, notify, message)
+}
+
+func (c *NotebookClient) ImportResearch(ctx context.Context, notebookID, researchID string, results []types.ResearchResult, report string) error {
+	return api.ImportResearch(ctx, c.rpcCaller(), notebookID, researchID, results, report)
+}
+
 func (c *NotebookClient) GenerateArtifact(ctx context.Context, notebookID string, sourceIDs []string, opts types.ArtifactOption) (string, string, error) {
 	sess := c.transport.GetSession()
 	lang := sess.Language

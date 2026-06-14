@@ -37,8 +37,13 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(detailCmd)
 	rootCmd.AddCommand(deleteCmd)
+	rootCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(renameCmd)
 	rootCmd.AddCommand(chatCmd)
 	rootCmd.AddCommand(sourceCmd)
+	rootCmd.AddCommand(noteCmd)
+	rootCmd.AddCommand(shareCmd)
+	rootCmd.AddCommand(researchCmd)
 	rootCmd.AddCommand(diagnoseCmd)
 }
 

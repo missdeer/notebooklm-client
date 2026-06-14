@@ -12,6 +12,42 @@ import (
 	"github.com/missdeer/notebooklm-client/internal/client"
 )
 
+var createCmd = &cobra.Command{
+	Use:   "create [title]",
+	Short: "Create a new notebook (optional title)",
+	Args:  cobra.MaximumNArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
+			id, err := c.CreateNotebook(ctx)
+			if err != nil {
+				return err
+			}
+			if len(args) == 1 && args[0] != "" {
+				if err := c.RenameNotebook(ctx, id, args[0]); err != nil {
+					fmt.Fprintf(os.Stderr, "Created %s but rename failed: %v\n", id, err)
+				}
+			}
+			fmt.Println(id)
+			return nil
+		})
+	},
+}
+
+var renameCmd = &cobra.Command{
+	Use:   "rename <notebook-id> <new-title>",
+	Short: "Rename a notebook",
+	Args:  cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
+			if err := c.RenameNotebook(ctx, args[0], args[1]); err != nil {
+				return err
+			}
+			fmt.Fprintf(os.Stderr, "Renamed %s\n", args[0])
+			return nil
+		})
+	},
+}
+
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all notebooks",
@@ -138,7 +174,7 @@ func splitAndTrim(s, sep string) []string {
 }
 
 func init() {
-	for _, cmd := range []*cobra.Command{listCmd, detailCmd, deleteCmd, chatCmd} {
+	for _, cmd := range []*cobra.Command{listCmd, detailCmd, deleteCmd, chatCmd, createCmd, renameCmd} {
 		addTransportFlags(cmd)
 	}
 	chatCmd.Flags().StringP("question", "q", "", "Question to ask")
