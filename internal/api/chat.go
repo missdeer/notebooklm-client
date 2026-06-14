@@ -6,6 +6,7 @@ import (
 
 	"github.com/missdeer/notebooklm-client/internal/parser"
 	"github.com/missdeer/notebooklm-client/internal/rpc"
+	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
 func SendChat(ctx context.Context, callChat ChatStreamCaller, notebookID, message string, sourceIDs []string) (text, threadID string, err error) {
@@ -15,6 +16,14 @@ func SendChat(ctx context.Context, callChat ChatStreamCaller, notebookID, messag
 	}
 	text, threadID, _ = parser.ParseChatStream(raw)
 	return text, threadID, nil
+}
+
+func SendChatWithCitations(ctx context.Context, callChat ChatStreamCaller, notebookID, message string, sourceIDs []string) (types.ChatWithCitationsResult, error) {
+	raw, err := callChat(ctx, notebookID, message, sourceIDs)
+	if err != nil {
+		return types.ChatWithCitationsResult{}, fmt.Errorf("send chat: %w", err)
+	}
+	return parser.ParseChatWithCitations(raw), nil
 }
 
 func DeleteChatThread(ctx context.Context, call RpcCaller, threadID string) error {

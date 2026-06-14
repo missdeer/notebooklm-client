@@ -9,13 +9,40 @@ import (
 
 var uuidPrefixRe = regexp.MustCompile(`^[0-9a-f]{8}-`)
 
-func ParseCreateNotebook(raw string) (string, error) {
+func ParseCreateNotebook(raw string) (notebookID, threadID string, err error) {
 	inner := extractInner(raw)
 	id := getString(inner, 2)
 	if id == "" {
-		return "", fmt.Errorf("failed to parse notebook ID from create response")
+		snippet := raw
+		if len(snippet) > 1000 {
+			snippet = snippet[:1000] + "..."
+		}
+		return "", "", fmt.Errorf("failed to parse notebook ID from create response\nRaw response: %s", snippet)
 	}
-	return id, nil
+	// Trailing field: [[<threadId>]] — auto-allocated default chat thread.
+	threadID = getString(inner, 11, 0, 0)
+	return id, threadID, nil
+}
+
+// ParseListChatThreads returns thread IDs in server order. Response shape:
+// [[[<threadId>], [<threadId>], ...]] (one tuple per thread).
+func ParseListChatThreads(raw string) []string {
+	inner := extractInner(raw)
+	entries := getArray(inner, 0)
+	if entries == nil {
+		return nil
+	}
+	ids := make([]string, 0, len(entries))
+	for _, e := range entries {
+		arr, ok := e.([]any)
+		if !ok || len(arr) == 0 {
+			continue
+		}
+		if s, ok := arr[0].(string); ok && s != "" {
+			ids = append(ids, s)
+		}
+	}
+	return ids
 }
 
 func ParseListNotebooks(raw string) []types.NotebookInfo {

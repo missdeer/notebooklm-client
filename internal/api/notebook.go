@@ -9,14 +9,27 @@ import (
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
-func CreateNotebook(ctx context.Context, call RpcCaller) (string, error) {
+func CreateNotebook(ctx context.Context, call RpcCaller) (notebookID, threadID string, err error) {
 	raw, err := call(ctx, rpc.CreateNotebook,
 		[]any{"", nil, nil, copySlice(rpc.PlatformWeb), []any{1, nil, nil, nil, nil, nil, nil, nil, nil, nil, []any{1}}},
 		"/")
 	if err != nil {
-		return "", fmt.Errorf("create notebook: %w", err)
+		return "", "", fmt.Errorf("create notebook: %w", err)
 	}
 	return parser.ParseCreateNotebook(raw)
+}
+
+// ListChatThreads returns chat thread IDs bound to a notebook.
+// NotebookLM auto-allocates one default thread per notebook on creation; the
+// web UI uses that thread for every chat so messages persist in the chat panel.
+func ListChatThreads(ctx context.Context, call RpcCaller, notebookID string) ([]string, error) {
+	raw, err := call(ctx, rpc.ListChatThreads,
+		[]any{[]any{}, nil, notebookID, 20},
+		"/notebook/"+notebookID)
+	if err != nil {
+		return nil, fmt.Errorf("list chat threads: %w", err)
+	}
+	return parser.ParseListChatThreads(raw), nil
 }
 
 func ListNotebooks(ctx context.Context, call RpcCaller) ([]types.NotebookInfo, error) {

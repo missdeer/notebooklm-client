@@ -107,6 +107,12 @@ func (t *CurlTransport) Execute(ctx context.Context, req Request) (string, error
 			return "", types.NewSessionError(fmt.Sprintf("HTTP %s", statusLine), nil)
 		}
 
+		// Detect in-body UNAUTHENTICATED (HTTP 200 + gRPC code 16 envelope) —
+		// triggers the existing refresh-and-retry path in doCall's wrapper.
+		if IsInBodyUnauth(responseBody) {
+			return "", types.NewSessionError("in-body UNAUTHENTICATED (code 16)", nil)
+		}
+
 		return responseBody, nil
 	}
 

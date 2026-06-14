@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/missdeer/notebooklm-client/internal/api"
 	"github.com/missdeer/notebooklm-client/internal/download"
@@ -37,16 +37,32 @@ type ConnectOptions struct {
 	ChromePath  string
 }
 
+type chatHistoryEntry = []any // [string, nil, int]
+
+type chatState struct {
+	threadID    string
+	history     []chatHistoryEntry
+	turnCounter int
+}
+
 type NotebookClient struct {
 	transport     transport.Transport
 	transportMode TransportMode
 	proxy         string
 	reqCounter    int
 	rpcOverrides  map[string]string
+
+	chatMu     sync.Mutex
+	chatStates map[string]*chatState
+	chatLocks  map[string]*sync.Mutex
 }
 
 func New() *NotebookClient {
-	return &NotebookClient{reqCounter: 100000}
+	return &NotebookClient{
+		reqCounter: 100000,
+		chatStates: make(map[string]*chatState),
+		chatLocks:  make(map[string]*sync.Mutex),
+	}
 }
 
 func (c *NotebookClient) Connect(ctx context.Context, opts ConnectOptions) error {
@@ -106,7 +122,10 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 	}
 
 	sessionPath := opts.SessionPath
-	proxyClient := transport.NewProxyHTTPClient(opts.Proxy)
+	// Use a uTLS-fingerprinted client for refresh: Google guards the dashboard
+	// HTML endpoint with cookie-to-TLS fingerprint binding, so plain net/http
+	// gets 302'd to accounts.google.com/CookieMismatch even with valid cookies.
+	proxyClient := transport.NewUTLSHTTPClient(opts.Proxy)
 	onSessionExpired := func(ctx context.Context) (*types.NotebookRpcSession, error) {
 		log.Println("NotebookLM: Token expired, auto-refreshing...")
 		refreshed, err := session.RefreshTokens(ctx, *sess, proxyClient, sessionPath)
@@ -218,6 +237,10 @@ func (c *NotebookClient) CallBatchExecute(ctx context.Context, rpcID string, pay
 }
 
 func (c *NotebookClient) CallChatStream(ctx context.Context, notebookID, message string, sourceIDs []string) (string, error) {
+	return c.callChatStreamWithState(ctx, c.getChatState(notebookID), notebookID, message, sourceIDs)
+}
+
+func (c *NotebookClient) callChatStreamWithState(ctx context.Context, state *chatState, notebookID, message string, sourceIDs []string) (string, error) {
 	if err := c.EnsureConnected(); err != nil {
 		return "", err
 	}
@@ -228,26 +251,50 @@ func (c *NotebookClient) CallChatStream(ctx context.Context, notebookID, message
 		sidsTriple[i] = []any{[]any{id}}
 	}
 
-	payload := []any{
-		[]any{message, 0, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, sidsTriple},
-		notebookID,
-		nil,
-		rpc.DefaultUserConfig,
+	// The web UI sends `null` for the first turn on a fresh session and an
+	// accumulating array thereafter. Sending `[]` instead of `null` for the
+	// first turn causes the server to accept the message but not write it to
+	// the notebook's visible chat thread on follow-ups.
+	var history any
+	if len(state.history) > 0 {
+		h := make([]any, len(state.history))
+		for i, e := range state.history {
+			h[i] = e
+		}
+		history = h
+	} else {
+		history = nil
 	}
-	payloadJSON, _ := json.Marshal(payload)
 
-	body := url.Values{}
-	body.Set("f.req", string(payloadJSON))
-	body.Set("at", sess.AT)
+	var threadIDField any
+	if state.threadID != "" {
+		threadIDField = state.threadID
+	}
+
+	innerPayload := []any{
+		sidsTriple,
+		message,
+		history,
+		[]any{2, nil, []any{1}, []any{1}},
+		threadIDField,
+		nil,
+		nil,
+		notebookID,
+		state.turnCounter + 1,
+	}
+	innerJSON, _ := json.Marshal(innerPayload)
+	fReq, _ := json.Marshal([]any{nil, string(innerJSON)})
 
 	c.reqCounter += util.JitteredIncrement(100000, 0.3)
+	hl := sess.Language
+	if hl == "" {
+		hl = "en"
+	}
 	qp := map[string]string{
 		"bl":     sess.BL,
+		"hl":     hl,
 		"rt":     "c",
 		"_reqid": fmt.Sprintf("%d", c.reqCounter),
-	}
-	if sess.Language != "" {
-		qp["hl"] = sess.Language
 	}
 	if sess.FSID != "" {
 		qp["f.sid"] = sess.FSID
@@ -257,10 +304,91 @@ func (c *NotebookClient) CallChatStream(ctx context.Context, notebookID, message
 		URL:         rpc.ChatStreamURL,
 		QueryParams: qp,
 		Body: map[string]string{
-			"f.req": string(payloadJSON),
+			"f.req": string(fReq),
 			"at":    sess.AT,
 		},
 	})
+}
+
+func (c *NotebookClient) getChatState(notebookID string) *chatState {
+	c.chatMu.Lock()
+	defer c.chatMu.Unlock()
+	if s, ok := c.chatStates[notebookID]; ok {
+		return s
+	}
+	s := &chatState{}
+	c.chatStates[notebookID] = s
+	return s
+}
+
+func (c *NotebookClient) bindChatThread(notebookID, threadID string) {
+	if threadID == "" {
+		return
+	}
+	state := c.getChatState(notebookID)
+	c.chatMu.Lock()
+	defer c.chatMu.Unlock()
+	if state.threadID == threadID {
+		return
+	}
+	state.threadID = threadID
+	state.history = nil
+	state.turnCounter = 0
+}
+
+// ensureChatThread resolves the notebook's default chat thread before sending.
+// NotebookLM auto-allocates one default thread per notebook on creation, so
+// hPTbtc should succeed. Empty result is best-effort — fall back to letting
+// the server allocate a thread on first chat (matches pre-fix behaviour).
+func (c *NotebookClient) ensureChatThread(ctx context.Context, notebookID string) (*chatState, error) {
+	state := c.getChatState(notebookID)
+	c.chatMu.Lock()
+	if state.threadID != "" {
+		c.chatMu.Unlock()
+		return state, nil
+	}
+	c.chatMu.Unlock()
+
+	threads, err := api.ListChatThreads(ctx, c.rpcCaller(), notebookID)
+	if err != nil {
+		return state, err
+	}
+
+	c.chatMu.Lock()
+	defer c.chatMu.Unlock()
+	if state.threadID == "" && len(threads) > 0 && threads[0] != "" {
+		state.threadID = threads[0]
+	}
+	return state, nil
+}
+
+func (c *NotebookClient) recordChatTurn(state *chatState, message, replyText, replyThreadID string) {
+	c.chatMu.Lock()
+	defer c.chatMu.Unlock()
+	if replyThreadID != "" && state.threadID == "" {
+		state.threadID = replyThreadID
+	}
+	// Newest-first; assistant reply precedes user prompt within each turn —
+	// matches the layout the web UI sends back on follow-ups.
+	state.history = append([]chatHistoryEntry{{message, nil, 1}}, state.history...)
+	if replyText != "" {
+		state.history = append([]chatHistoryEntry{{replyText, nil, 2}}, state.history...)
+	}
+	state.turnCounter++
+}
+
+// chatLock returns (and lazily creates) the per-notebook serialization lock.
+// Chat calls within the same notebook must run sequentially because history
+// accumulates and the server expects monotonic turn counters.
+func (c *NotebookClient) chatLock(notebookID string) *sync.Mutex {
+	c.chatMu.Lock()
+	defer c.chatMu.Unlock()
+	if m, ok := c.chatLocks[notebookID]; ok {
+		return m
+	}
+	m := &sync.Mutex{}
+	c.chatLocks[notebookID] = m
+	return m
 }
 
 // rpcCaller returns an api.RpcCaller bound to this client.
@@ -275,7 +403,34 @@ func (c *NotebookClient) chatCaller() api.ChatStreamCaller {
 // Delegated API methods
 
 func (c *NotebookClient) CreateNotebook(ctx context.Context) (string, error) {
-	return api.CreateNotebook(ctx, c.rpcCaller())
+	notebookID, threadID, err := api.CreateNotebook(ctx, c.rpcCaller())
+	if err != nil {
+		return "", err
+	}
+	if threadID != "" {
+		c.bindChatThread(notebookID, threadID)
+	}
+	return notebookID, nil
+}
+
+// CreateNotebookFull returns both the notebook ID and the auto-allocated
+// default chat thread ID. Prefer this when you need the thread up front.
+func (c *NotebookClient) CreateNotebookFull(ctx context.Context) (notebookID, threadID string, err error) {
+	notebookID, threadID, err = api.CreateNotebook(ctx, c.rpcCaller())
+	if err != nil {
+		return "", "", err
+	}
+	if threadID != "" {
+		c.bindChatThread(notebookID, threadID)
+	}
+	return notebookID, threadID, nil
+}
+
+// ListChatThreads enumerates chat threads bound to a notebook. The first entry
+// is the default thread the web UI uses; SendChat/SendChatWithCitations resolve
+// it automatically, so call this only when enumerating or seeding a custom one.
+func (c *NotebookClient) ListChatThreads(ctx context.Context, notebookID string) ([]string, error) {
+	return api.ListChatThreads(ctx, c.rpcCaller(), notebookID)
 }
 
 func (c *NotebookClient) ListNotebooks(ctx context.Context) ([]types.NotebookInfo, error) {
@@ -337,7 +492,41 @@ func (c *NotebookClient) GetInteractiveHTML(ctx context.Context, artifactID stri
 }
 
 func (c *NotebookClient) SendChat(ctx context.Context, notebookID, message string, sourceIDs []string) (string, string, error) {
-	return api.SendChat(ctx, c.chatCaller(), notebookID, message, sourceIDs)
+	lock := c.chatLock(notebookID)
+	lock.Lock()
+	defer lock.Unlock()
+
+	state, _ := c.ensureChatThread(ctx, notebookID)
+	caller := func(ctx context.Context, nbID, msg string, sids []string) (string, error) {
+		return c.callChatStreamWithState(ctx, state, nbID, msg, sids)
+	}
+	text, threadID, err := api.SendChat(ctx, caller, notebookID, message, sourceIDs)
+	if err != nil {
+		return "", "", err
+	}
+	c.recordChatTurn(state, message, text, threadID)
+	return text, threadID, nil
+}
+
+func (c *NotebookClient) SendChatWithCitations(ctx context.Context, notebookID, message string, sourceIDs []string) (types.ChatWithCitationsResult, error) {
+	lock := c.chatLock(notebookID)
+	lock.Lock()
+	defer lock.Unlock()
+
+	state, _ := c.ensureChatThread(ctx, notebookID)
+	caller := func(ctx context.Context, nbID, msg string, sids []string) (string, error) {
+		return c.callChatStreamWithState(ctx, state, nbID, msg, sids)
+	}
+	result, err := api.SendChatWithCitations(ctx, caller, notebookID, message, sourceIDs)
+	if err != nil {
+		return types.ChatWithCitationsResult{}, err
+	}
+	c.recordChatTurn(state, message, result.Text, result.ThreadID)
+	return result, nil
+}
+
+func (c *NotebookClient) DeleteChatThread(ctx context.Context, threadID string) error {
+	return api.DeleteChatThread(ctx, c.rpcCaller(), threadID)
 }
 
 func (c *NotebookClient) GetStudioConfig(ctx context.Context, notebookID string) (types.StudioConfig, error) {

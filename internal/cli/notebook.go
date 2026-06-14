@@ -2,8 +2,10 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/spf13/cobra"
@@ -85,18 +87,54 @@ var chatCmd = &cobra.Command{
 			if question == "" {
 				return fmt.Errorf("--question is required")
 			}
-			_, sources, err := c.GetNotebookDetail(ctx, args[0])
-			if err != nil { return err }
-			sourceIDs := make([]string, len(sources))
-			for i, s := range sources {
-				sourceIDs[i] = s.ID
+			withCitations, _ := cmd.Flags().GetBool("with-citations")
+			sourceIDsFlag, _ := cmd.Flags().GetString("source-ids")
+
+			var sourceIDs []string
+			if sourceIDsFlag != "" {
+				for _, id := range splitAndTrim(sourceIDsFlag, ",") {
+					if id != "" {
+						sourceIDs = append(sourceIDs, id)
+					}
+				}
+			} else {
+				_, sources, err := c.GetNotebookDetail(ctx, args[0])
+				if err != nil {
+					return err
+				}
+				sourceIDs = make([]string, len(sources))
+				for i, s := range sources {
+					sourceIDs[i] = s.ID
+				}
 			}
+
+			if withCitations {
+				result, err := c.SendChatWithCitations(ctx, args[0], question, sourceIDs)
+				if err != nil {
+					return err
+				}
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(result)
+			}
+
 			text, _, err := c.SendChat(ctx, args[0], question, sourceIDs)
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 			fmt.Println(text)
 			return nil
 		})
 	},
+}
+
+func splitAndTrim(s, sep string) []string {
+	parts := strings.Split(s, sep)
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		out = append(out, strings.TrimSpace(p))
+	}
+	return out
 }
 
 func init() {
@@ -104,4 +142,6 @@ func init() {
 		addTransportFlags(cmd)
 	}
 	chatCmd.Flags().StringP("question", "q", "", "Question to ask")
+	chatCmd.Flags().String("source-ids", "", "Comma-separated source IDs (default: all)")
+	chatCmd.Flags().Bool("with-citations", false, "Include per-citation metadata in output")
 }

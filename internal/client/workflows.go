@@ -65,7 +65,10 @@ func addSourceFromInput(ctx context.Context, c *NotebookClient, notebookID strin
 		for _, r := range results {
 			c.AddURLSource(ctx, notebookID, r.URL)
 		}
-		pollSourcesReady(ctx, c, notebookID, 120*time.Second)
+		// Deep research imports 40+ URL sources; Google indexes each async
+		// (10-15s per URL), so 2min is too tight. Bump to 10min only here —
+		// other call sites process a single user-provided source in seconds.
+		pollSourcesReady(ctx, c, notebookID, 600*time.Second)
 		_, sources, err := c.GetNotebookDetail(ctx, notebookID)
 		if err != nil {
 			return nil, err
@@ -86,14 +89,23 @@ func pollSourcesReady(ctx context.Context, c *NotebookClient, notebookID string,
 	for time.Now().Before(deadline) {
 		_, sources, err := c.GetNotebookDetail(ctx, notebookID)
 		if err == nil && len(sources) > 0 {
-			allReady := true
+			readyCount := 0
 			for _, s := range sources {
-				if s.WordCount == nil || *s.WordCount == 0 {
-					allReady = false
-					break
+				if s.WordCount != nil && *s.WordCount > 0 {
+					readyCount++
 				}
 			}
-			if allReady {
+			// With 50+ URL sources from deep research, a handful always fail to
+			// fetch (403/404/timeout) and stay at wordCount=0 forever. Accept
+			// "mostly ready": 70% indexed or 30, whichever is lower.
+			threshold := int(math.Ceil(float64(len(sources)) * 0.7))
+			if threshold > 30 {
+				threshold = 30
+			}
+			if readyCount >= threshold {
+				if readyCount < len(sources) {
+					log.Printf("NotebookLM: Sources ready %d/%d (threshold met)", readyCount, len(sources))
+				}
 				return
 			}
 		}
@@ -112,18 +124,34 @@ func pollArtifactReady(ctx context.Context, c *NotebookClient, notebookID, artif
 		if err != nil {
 			return nil, err
 		}
+		var match *types.ArtifactInfo
 		for i := range artifacts {
-			a := &artifacts[i]
-			if a.ID != artifactID {
-				continue
+			if artifacts[i].ID == artifactID {
+				match = &artifacts[i]
+				break
 			}
-			isMedia := a.Type == rpc.ArtifactAudio || a.Type == rpc.ArtifactVideo
+		}
+		// Fallback: generateArtifact RPC sometimes returns a task ID that
+		// differs from the final artifact id. If exact match misses, take any
+		// ready AUDIO/VIDEO artifact with a download/stream/hls URL.
+		if match == nil {
+			for i := range artifacts {
+				a := &artifacts[i]
+				if (a.Type == rpc.ArtifactAudio || a.Type == rpc.ArtifactVideo) &&
+					(a.DownloadURL != "" || a.StreamURL != "" || a.HlsURL != "") {
+					match = a
+					break
+				}
+			}
+		}
+		if match != nil {
+			isMedia := match.Type == rpc.ArtifactAudio || match.Type == rpc.ArtifactVideo
 			if isMedia {
-				if a.DownloadURL != "" || a.StreamURL != "" || a.HlsURL != "" {
-					return a, nil
+				if match.DownloadURL != "" || match.StreamURL != "" || match.HlsURL != "" {
+					return match, nil
 				}
 			} else {
-				return a, nil
+				return match, nil
 			}
 		}
 		pollCount++

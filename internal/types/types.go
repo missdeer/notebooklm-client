@@ -471,3 +471,26 @@ type AnalyzeResult struct {
 type ChatResult struct {
 	Response string
 }
+
+// ChatCitation is one citation entry surfaced by sendChatWithCitations.
+// It joins an inline ref ([4][0][1]) with its retrieval chunk ([4][3]).
+type ChatCitation struct {
+	Index     int     `json:"index"`
+	SourceID  string  `json:"sourceId"`
+	Relevance float64 `json:"relevance"`
+	CharStart int     `json:"charStart"`
+	CharEnd   int     `json:"charEnd"`
+	Excerpt   string  `json:"excerpt"`
+	ChunkID   string  `json:"chunkId"`
+	// HasRelevance/HasCharRange disambiguate "absent" from "zero" — the wire
+	// format omits these fields when the chunk lacks metadata.
+	HasRelevance bool `json:"-"`
+	HasCharRange bool `json:"-"`
+}
+
+type ChatWithCitationsResult struct {
+	Text       string         `json:"text"`
+	ThreadID   string         `json:"threadId"`
+	ResponseID string         `json:"responseId"`
+	Citations  []ChatCitation `json:"citations"`
+}

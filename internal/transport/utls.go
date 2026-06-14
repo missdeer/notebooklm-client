@@ -89,7 +89,13 @@ func (t *UTLSTransport) Execute(ctx context.Context, req Request) (string, error
 			}
 			return "", fmt.Errorf("HTTP %d: %s", resp.StatusCode, snippet)
 		}
-		return string(respBody), nil
+		respStr := string(respBody)
+		// Google returns HTTP 200 with an in-body gRPC UNAUTHENTICATED envelope
+		// when at/bl is stale. Surface as SessionError so refresh kicks in.
+		if IsInBodyUnauth(respStr) {
+			return "", types.NewSessionError("in-body UNAUTHENTICATED (code 16)", nil)
+		}
+		return respStr, nil
 	}
 
 	text, err := doCall()
@@ -141,26 +147,30 @@ func (t *UTLSTransport) Close() error {
 }
 
 func (t *UTLSTransport) createHTTPClient() *http.Client {
+	return NewUTLSHTTPClient(t.proxy)
+}
+
+// NewUTLSHTTPClient returns an *http.Client that reproduces Chrome's TLS +
+// HTTP/2 fingerprint. Use it for any request that targets a Google endpoint
+// (e.g., session refresh against notebooklm.google.com), since plain
+// net/http hits CookieMismatch on cookie-to-fingerprint-bound endpoints.
+func NewUTLSHTTPClient(proxyURL string) *http.Client {
 	dialer := &net.Dialer{}
-	// Use proxy-aware dial so both h1 and h2 route through the proxy.
-	dialConn := proxyDialContext(t.proxy, dialer)
+	dialConn := proxyDialContext(proxyURL, dialer)
 
 	dialTLS := func(ctx context.Context, network, addr string) (net.Conn, error) {
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil {
 			host = addr
 		}
-
 		rawConn, err := dialConn(ctx, network, addr)
 		if err != nil {
 			return nil, err
 		}
-
 		uConn := utls.UClient(rawConn, &utls.Config{
 			ServerName:         host,
 			InsecureSkipVerify: false,
 		}, utls.HelloChrome_131)
-
 		if err := uConn.HandshakeContext(ctx); err != nil {
 			rawConn.Close()
 			return nil, err
@@ -168,26 +178,20 @@ func (t *UTLSTransport) createHTTPClient() *http.Client {
 		return uConn, nil
 	}
 
-	// HTTP/2 transport for when ALPN negotiates h2
 	h2Transport := &http2.Transport{
 		DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
 			return dialTLS(ctx, network, addr)
 		},
 	}
+	h1Transport := &http.Transport{DialTLSContext: dialTLS}
 
-	// HTTP/1.1 fallback transport
-	h1Transport := &http.Transport{
-		DialTLSContext: dialTLS,
-	}
-
-	// Use a round-tripper that picks h2 or h1 based on ALPN result
 	return &http.Client{
 		Transport: &alpnSwitchTransport{
-			dialer:      dialer,
-			h2:          h2Transport,
-			h1:          h1Transport,
-			dialTLS:     dialTLS,
-			proxy:       t.proxy,
+			dialer:  dialer,
+			h2:      h2Transport,
+			h1:      h1Transport,
+			dialTLS: dialTLS,
+			proxy:   proxyURL,
 		},
 	}
 }
