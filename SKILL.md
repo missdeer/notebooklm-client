@@ -87,6 +87,7 @@ All commands use `--transport auto` for headless mode (Go uses native uTLS, no s
 | Source raw indexed text | `notebooklm source content <source-id> --transport auto [--json]` |
 | List Studio artifacts and status | `notebooklm studio status <notebook-id> --transport auto` (`studio list` is an alias) |
 | Studio artifacts as JSON | `notebooklm studio status <notebook-id> --transport auto --json` |
+| Download existing artifact | `notebooklm studio download <notebook-id> <artifact-id> --transport auto -o ./output [--format pptx]` |
 | Delete studio artifact(s) | `notebooklm studio delete <artifact-id...> --transport auto` |
 | Revise slide deck | `notebooklm studio revise <artifact-id> --transport auto --slide "0:Tighten intro" --slide "3:Add chart"` |
 | Export artifact to Docs/Sheets | `notebooklm studio export <notebook-id> <artifact-id> --transport auto --format docs --title "Q2 Brief"` |
@@ -163,7 +164,7 @@ NOTEBOOKLM_HOME=~/.notebooklm-work notebooklm list --transport auto
 
 ## Autonomy Rules
 
-**Run automatically:** `list`, `detail`, `describe`, `diagnose`, `session-status`, `source list`, `source summary`, `source content`, `note list`, `share status`, `research status`, `studio status`, `studio list`
+**Run automatically:** `list`, `detail`, `describe`, `diagnose`, `session-status`, `source list`, `source summary`, `source content`, `note list`, `share status`, `research status`, `studio status`, `studio list`, `studio download` (writes local files only)
 
 **Ask before running:**
 - Generation commands (long-running, creates notebook)
@@ -280,11 +281,18 @@ Creates a NEW slide-deck artifact with the instructions applied. The original is
 notebooklm list --transport auto
 notebooklm studio status <notebook-id> --transport auto
 notebooklm studio status <notebook-id> --transport auto --json
+notebooklm studio download <notebook-id> <artifact-id> --transport auto --format pptx -o ./output
+# Or download only the PDF:
+notebooklm studio download <notebook-id> <artifact-id> --transport auto --format pdf -o ./output
 ```
 
 Match the notebook and artifact title, then report the actual artifact ID and status. `slide_deck` is type 8; status code 3 means completed. JSON fields use Go field names, including `ID`, `Title`, `Type`, `StatusCode`, and `DownloadURL`; the latter prefers PPTX and falls back to PDF for slides. Status code 1 is in progress, 2 is queued, 4 is failed, and 5 is suggested. Audio may expose playable media at code 2, so inspect its URLs before concluding it is still queued.
 
-Check existing artifacts before repeating generation: a metadata/download timeout does not mean generation failed, and generating again consumes quota and can create duplicates. Use the listed ID for subsequent operations; do not select an unrelated audio/video artifact as a substitute for slides. The Go CLI currently has no standalone `studio download` command; `slides` starts a new generation workflow.
+Check existing artifacts before repeating generation: a metadata/download timeout does not mean generation failed, and generating again consumes quota and can create duplicates. Use the listed ID for subsequent operations; do not select an unrelated audio/video artifact as a substitute for slides. `studio download` downloads an existing artifact; `slides` starts a new generation workflow.
+
+`studio download` validates that the artifact belongs to the specified notebook and prints the local path on success. `--output/-o` is a directory (default `.`). `--format auto` (default) selects PPTX for slides, falling back to PDF; an explicit unavailable format returns an error. Other native formats are audio `m4a`, video `mp4`, report `md`, quiz/flashcards `html`, infographic `png`, and data table `csv`. Downloading uses built-in HTTP with session cookies and proxy support; external curl is unnecessary. The downloader uses HTTP/1.1 because the artifact CDN was verified to return HTTP 400 for Go HTTP/2 requests. It does not transcode files or assemble HLS/DASH streams. Unsupported types, missing IDs, and unfinished/failed artifacts return errors rather than triggering generation.
+
+For files larger than 512KiB, a successful Range probe enables `min(ceil(size / 512KiB), 10)` concurrent workers. An idle worker steals half the largest remaining unrequested tail; in-flight requests are never reassigned. Transfers use bounded range requests and stream into a temporary file, validate `Content-Range`/total length, and use `If-Range` when a strong ETag or Last-Modified is available. If the server ignores Range, the downloader restarts as a full single transfer. The final path is replaced only after success; failures/cancellation remove temporary data. This is parallel downloading with retries within one invocation, not persistent resume across invocations.
 
 If the installed binary does not recognize `studio status`, use a build containing this command. When the local `notebooklm-mcp-cli` checkout is available, its read-only `get_studio_status(notebook_id)` / `poll_studio_status(notebook_id)` can also list actual IDs. Its authentication storage differs from Go's; never print cookies or tokens when adapting a session.
 

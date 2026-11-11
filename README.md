@@ -153,6 +153,20 @@ npx @missdeer/notebooklm list
 npx @missdeer/notebooklm list --transport browser
 ```
 
+### 下载已有 Studio 产物
+
+```bash
+notebooklm studio status <notebook-id>
+notebooklm studio download <notebook-id> <artifact-id> --format pptx -o ./output
+notebooklm studio download <notebook-id> <artifact-id> --format pdf -o ./output
+```
+
+无需重新生成，也无需外部 curl。程序使用内置 HTTP 下载，支持会话 Cookie 和代理，成功后输出本地文件路径。`-o` 指定输出目录（默认当前目录）；默认 `--format auto`，slides 优先下载 PPTX，没有 PPTX 时下载 PDF。显式指定的格式不存在时会报错。
+
+其他支持的原生格式：音频 `m4a`、视频 `mp4`、报告 `md`、测验/闪卡 `html`、信息图 `png`、数据表 `csv`。不进行格式转换或 HLS/DASH 合并。仅下载指定笔记本内 ID 精确匹配的已有产物，未完成或失败的产物会报错。
+
+文件大于 512KiB 且服务端支持 HTTP Range 时，自动启用并发分片，worker 数为 `min(ceil(文件大小 / 512KiB), 10)`。worker 完成当前任务后，使用 work stealing 从剩余未请求数据最多的 worker 拆走一半任务；在途请求保持不变。分片响应会校验区间和总长度，服务端忽略 Range 时回退到整文件下载。数据流式写入临时文件，全部成功后替换输出；分片进度只保留在本次下载中，不支持跨进程恢复。
+
 ## Transport 模式
 
 | 模式 | 说明 | TLS 保真度 | 需要浏览器 |

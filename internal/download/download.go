@@ -3,9 +3,9 @@ package download
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
+	"net/http/cookiejar"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,6 +14,7 @@ import (
 	"github.com/missdeer/notebooklm-client/internal/api"
 	"github.com/missdeer/notebooklm-client/internal/parser"
 	"github.com/missdeer/notebooklm-client/internal/rpc"
+	"github.com/missdeer/notebooklm-client/internal/session"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -30,66 +31,95 @@ func DownloadFileHTTP(ctx context.Context, deps Deps, downloadURL, outputDir, fi
 	if client == nil {
 		client = http.DefaultClient
 	}
+	// A jar applies domain-scoped cookies on every redirect, including redirects
+	// between googleusercontent.com and usercontent.google.com.
+	copyClient := *client
+	baseTransport := client.Transport
+	if baseTransport == nil {
+		baseTransport = http.DefaultTransport
+	}
+	if tr, ok := baseTransport.(*http.Transport); ok {
+		tr = tr.Clone()
+		// contribution.usercontent.google.com rejects these downloads over Go
+		// HTTP/2 with HTTP 400; HTTP/1.1 succeeds (also used by the Python client).
+		tr.Protocols = new(http.Protocols)
+		tr.Protocols.SetHTTP1(true)
+		if tr.TLSClientConfig != nil {
+			tr.TLSClientConfig = tr.TLSClientConfig.Clone()
+			tr.TLSClientConfig.NextProtos = []string{"http/1.1"}
+		}
+		copyClient.Transport = tr
+		defer tr.CloseIdleConnections()
+	}
+	copyClient.Jar = downloadCookieJar(deps.Session)
+	originalRedirect := client.CheckRedirect
+	copyClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if originalRedirect != nil {
+			if err := originalRedirect(req, via); err != nil {
+				return err
+			}
+		} else if len(via) >= 10 {
+			return fmt.Errorf("stopped after 10 redirects")
+		}
+		// Keep the originating NotebookLM page, not an intermediate signed CDN URL.
+		req.Header.Set("Referer", rpc.SessionBaseURL(deps.Session.BaseHost)+"/")
+		return nil
+	}
+	client = &copyClient
 	if err := os.MkdirAll(outputDir, 0o755); err != nil {
 		return "", fmt.Errorf("create output dir: %w", err)
 	}
 
 	outPath := filepath.Join(outputDir, filename)
-
-	maxRetries := 10
-	for attempt := 1; attempt <= maxRetries; attempt++ {
-		req, err := http.NewRequestWithContext(ctx, "GET", downloadURL, nil)
-		if err != nil {
-			return "", err
-		}
-		ua := deps.Session.UserAgent
-		if ua == "" {
-			ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-		}
-		req.Header.Set("User-Agent", ua)
-		req.Header.Set("Accept", "*/*")
-		if deps.Session.Cookies != "" {
-			req.Header.Set("Cookie", deps.Session.Cookies)
-		}
-
-		resp, err := client.Do(req)
-		if err != nil {
-			if attempt < maxRetries {
-				time.Sleep(time.Duration(attempt*10) * time.Second)
-				continue
-			}
-			return "", fmt.Errorf("download: %w", err)
-		}
-
-		body, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
-		if err != nil {
-			return "", fmt.Errorf("download read: %w", err)
-		}
-
-		bodyStr := string(body)
-		if resp.StatusCode == 404 || isHTMLResponse(bodyStr) {
-			if isAuthFailure(bodyStr) {
-				return "", fmt.Errorf("download auth failure: login page returned (cookies may be expired)")
-			}
-			if attempt < maxRetries {
-				log.Printf("NotebookLM: CDN not ready (attempt %d/%d), retrying...", attempt, maxRetries)
-				time.Sleep(time.Duration(attempt*10) * time.Second)
-				continue
-			}
-			return "", fmt.Errorf("download failed after %d retries (CDN propagation)", maxRetries)
-		}
-
-		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-			return "", fmt.Errorf("download HTTP %d", resp.StatusCode)
-		}
-
-		if err := os.WriteFile(outPath, body, 0o644); err != nil {
-			return "", fmt.Errorf("write file: %w", err)
-		}
-		return outPath, nil
+	if err := downloadContent(ctx, client, deps.Session, downloadURL, outPath); err != nil {
+		return "", err
 	}
-	return "", fmt.Errorf("download failed: exhausted retries")
+	return outPath, nil
+}
+
+func downloadCookieJar(sess types.NotebookRpcSession) http.CookieJar {
+	jar, _ := cookiejar.New(nil)
+	cookies := sess.CookieJar
+	if len(cookies) == 0 {
+		cookies = session.InferCookieJar(sess.Cookies)
+	}
+	for _, c := range cookies {
+		// NotebookLM's OSID cookies can cause ServiceLogin redirects on CDN hosts.
+		if c.Name == "OSID" || c.Name == "__Secure-OSID" {
+			continue
+		}
+		host := strings.TrimPrefix(c.Domain, ".")
+		if host == "" {
+			continue
+		}
+		cookie := &http.Cookie{Name: c.Name, Value: c.Value, Path: c.Path, Secure: c.Secure, HttpOnly: c.HttpOnly}
+		if strings.HasPrefix(c.Domain, ".") {
+			cookie.Domain = c.Domain
+		}
+		if !c.Session && c.Expires != nil {
+			cookie.Expires = *c.Expires
+		}
+		jar.SetCookies(&url.URL{Scheme: "https", Host: host, Path: "/"}, []*http.Cookie{cookie})
+		// NotebookLM artifact URLs require Google auth on this separate CDN domain.
+		// Mirror the Python client's explicit domain mapping, excluding OSID above.
+		if c.Domain == ".google.com" {
+			cdnCookie := *cookie
+			cdnCookie.Domain = ".googleusercontent.com"
+			jar.SetCookies(&url.URL{Scheme: "https", Host: "googleusercontent.com", Path: "/"}, []*http.Cookie{&cdnCookie})
+		}
+	}
+	return jar
+}
+
+func waitDownloadRetry(ctx context.Context, attempt int) error {
+	timer := time.NewTimer(time.Duration(attempt*10) * time.Second)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 func isHTMLResponse(body string) bool {
@@ -100,13 +130,6 @@ func isHTMLResponse(body string) bool {
 func isAuthFailure(body string) bool {
 	lower := strings.ToLower(body)
 	return strings.Contains(lower, "accounts.google") || strings.Contains(lower, "servicelogin")
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
 
 // GetArtifactMetadata fetches one artifact via the same detail RPC used by TS.

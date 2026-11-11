@@ -18,7 +18,25 @@ import (
 
 var studioCmd = &cobra.Command{
 	Use:   "studio",
-	Short: "Manage studio artifacts (status, delete, revise, export)",
+	Short: "Manage studio artifacts (status, download, delete, revise, export)",
+}
+
+var studioDownloadCmd = &cobra.Command{
+	Use:   "download <notebook-id> <artifact-id>",
+	Short: "Download an existing artifact without generating it again",
+	Args:  cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
+			format, _ := cmd.Flags().GetString("format")
+			outputDir, _ := cmd.Flags().GetString("output")
+			path, err := c.DownloadArtifact(ctx, args[0], args[1], outputDir, format)
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Fprintln(cmd.OutOrStdout(), path)
+			return err
+		})
+	},
 }
 
 var studioStatusCmd = &cobra.Command{
@@ -224,12 +242,14 @@ var chatConfigureCmd = &cobra.Command{
 }
 
 func init() {
-	subs := []*cobra.Command{studioStatusCmd, studioDeleteCmd, studioReviseCmd, studioExportCmd}
+	subs := []*cobra.Command{studioStatusCmd, studioDownloadCmd, studioDeleteCmd, studioReviseCmd, studioExportCmd}
 	for _, sc := range subs {
 		studioCmd.AddCommand(sc)
 		addTransportFlags(sc)
 	}
 	studioStatusCmd.Flags().Bool("json", false, "Emit JSON")
+	studioDownloadCmd.Flags().String("format", "auto", "Native format: auto, pptx, pdf, m4a, mp4, md, html, png, csv (no conversion)")
+	studioDownloadCmd.Flags().StringP("output", "o", ".", "Output directory")
 	studioReviseCmd.Flags().StringArray("slide", nil, "Per-slide instruction in <index>:<text> form (repeatable)")
 	studioExportCmd.Flags().String("format", "docs", "Export target: docs, sheets")
 	studioExportCmd.Flags().String("title", "", "Title for the new document")
