@@ -26,6 +26,17 @@ var (
 // RefreshTokens refreshes short-lived tokens (at, bl, fsid) using long-lived cookies.
 // Makes a GET request to the dashboard and extracts WIZ_global_data values from HTML.
 func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpClient *http.Client, savePath string) (*types.NotebookRpcSession, error) {
+	refreshed, err := refreshTokensAtHost(ctx, session, httpClient, savePath)
+	// Legacy sessions and imported cookies have no remembered host. Probe the
+	// rebranded consumer site when the original homepage cannot authenticate.
+	if err != nil && session.BaseHost == "" && ctx.Err() == nil {
+		session.BaseHost = "notebook.google.com"
+		return refreshTokensAtHost(ctx, session, httpClient, savePath)
+	}
+	return refreshed, err
+}
+
+func refreshTokensAtHost(ctx context.Context, session types.NotebookRpcSession, httpClient *http.Client, savePath string) (*types.NotebookRpcSession, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -34,12 +45,12 @@ func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpCl
 		ua = defaultUA
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "GET", rpc.DashboardURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", rpc.SessionBaseURL(session.BaseHost)+"/", nil)
 	if err != nil {
 		return nil, fmt.Errorf("refresh tokens: %w", err)
 	}
 	req.Header.Set("User-Agent", ua)
-	req.Header.Set("Cookie", session.Cookies)
+	req.Header.Set("Cookie", CookieHeaderForURL(session, req.URL.String()))
 	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 	req.Header.Set("Accept-Language", "en-US,en;q=0.9")
 
@@ -58,6 +69,10 @@ func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpCl
 		return nil, fmt.Errorf("token refresh failed: HTTP %d", resp.StatusCode)
 	}
 
+	baseHost := rpc.NotebookHost(resp.Request.URL.String())
+	if baseHost == "" {
+		return nil, fmt.Errorf("token refresh failed: redirected outside NotebookLM (cookies may be expired)")
+	}
 	html := string(body)
 	atMatch := reAT.FindStringSubmatch(html)
 	if len(atMatch) < 2 {
@@ -86,6 +101,7 @@ func RefreshTokens(ctx context.Context, session types.NotebookRpcSession, httpCl
 		CookieJar: mergedJar,
 		UserAgent: session.UserAgent,
 		Language:  extractLang(langMatch, session.Language),
+		BaseHost:  baseHost,
 	}
 
 	filePath := savePath

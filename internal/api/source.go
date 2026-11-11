@@ -12,6 +12,7 @@ import (
 
 	"github.com/missdeer/notebooklm-client/internal/parser"
 	"github.com/missdeer/notebooklm-client/internal/rpc"
+	"github.com/missdeer/notebooklm-client/internal/session"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -103,12 +104,12 @@ func scottyUpload(ctx context.Context, deps FileUploadDeps, notebookID, fileName
 	}
 
 	baseHeaders := map[string]string{
-		"Accept":           "*/*",
-		"Cookie":           deps.Session.Cookies,
-		"Origin":           "https://notebooklm.google.com",
-		"Referer":          "https://notebooklm.google.com/",
-		"User-Agent":       deps.Session.UserAgent,
-		"x-goog-authuser":  "0",
+		"Accept":          "*/*",
+		"Cookie":          session.CookieHeaderForURL(deps.Session, rpc.SessionURL(rpc.UploadURL, deps.Session.BaseHost)),
+		"Origin":          rpc.SessionBaseURL(deps.Session.BaseHost),
+		"Referer":         rpc.SessionBaseURL(deps.Session.BaseHost) + "/",
+		"User-Agent":      deps.Session.UserAgent,
+		"x-goog-authuser": "0",
 	}
 
 	initBody, _ := json.Marshal(map[string]string{
@@ -117,7 +118,7 @@ func scottyUpload(ctx context.Context, deps FileUploadDeps, notebookID, fileName
 		"SOURCE_ID":   sourceID,
 	})
 
-	initReq, err := http.NewRequestWithContext(ctx, "POST", rpc.UploadURL+"?authuser=0", strings.NewReader(string(initBody)))
+	initReq, err := http.NewRequestWithContext(ctx, "POST", rpc.SessionURL(rpc.UploadURL, deps.Session.BaseHost)+"?authuser=0", strings.NewReader(string(initBody)))
 	if err != nil {
 		return err
 	}

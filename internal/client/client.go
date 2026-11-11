@@ -128,14 +128,9 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 	proxyClient := transport.NewUTLSHTTPClient(opts.Proxy)
 	onSessionExpired := func(ctx context.Context) (*types.NotebookRpcSession, error) {
 		log.Println("NotebookLM: Token expired, auto-refreshing...")
-		refreshed, err := session.RefreshTokens(ctx, *sess, proxyClient, sessionPath)
+		refreshed, err := refreshHeadlessSession(ctx, *sess, proxyClient, sessionPath)
 		if err != nil {
-			fromDisk, loadErr := session.Load(sessionPath)
-			if loadErr == nil && fromDisk != nil {
-				return fromDisk, nil
-			}
-			return nil, types.NewSessionError(
-				"Session expired and auto-refresh failed. Re-run `export-session`.", err)
+			return nil, err
 		}
 		sess = refreshed
 		return refreshed, nil
@@ -185,7 +180,7 @@ func (c *NotebookClient) GetRpcSession() *types.NotebookRpcSession {
 	return &s
 }
 
-func (c *NotebookClient) GetProxy() string { return c.proxy }
+func (c *NotebookClient) GetProxy() string                { return c.proxy }
 func (c *NotebookClient) GetTransportMode() TransportMode { return c.transportMode }
 
 func (c *NotebookClient) resolveRpcID(staticID string) string {

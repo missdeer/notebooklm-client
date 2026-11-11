@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/missdeer/notebooklm-client/internal/rpc"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -51,6 +52,7 @@ func (t *CurlTransport) Execute(ctx context.Context, req Request) (string, error
 		t.mu.RLock()
 		sess := t.session
 		t.mu.RUnlock()
+		req := requestWithSession(req, sess)
 
 		qp := url.Values{}
 		for k, v := range req.QueryParams {
@@ -60,7 +62,7 @@ func (t *CurlTransport) Execute(ctx context.Context, req Request) (string, error
 		for k, v := range req.Body {
 			body.Set(k, v)
 		}
-		fullURL := req.URL + "?" + qp.Encode()
+		fullURL := rpc.SessionURL(req.URL, sess.BaseHost) + "?" + qp.Encode()
 		bodyStr := body.Encode()
 
 		headers := ChromeHeaders(sess, len(bodyStr))

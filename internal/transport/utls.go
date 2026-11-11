@@ -15,6 +15,8 @@ import (
 	utls "github.com/refraction-networking/utls"
 	"golang.org/x/net/http2"
 
+	"github.com/missdeer/notebooklm-client/internal/rpc"
+	"github.com/missdeer/notebooklm-client/internal/session"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -47,6 +49,7 @@ func (t *UTLSTransport) Execute(ctx context.Context, req Request) (string, error
 		t.mu.RLock()
 		sess := t.session
 		t.mu.RUnlock()
+		req := requestWithSession(req, sess)
 
 		qp := url.Values{}
 		for k, v := range req.QueryParams {
@@ -57,13 +60,14 @@ func (t *UTLSTransport) Execute(ctx context.Context, req Request) (string, error
 			body.Set(k, v)
 		}
 		bodyStr := body.Encode()
-		fullURL := req.URL + "?" + qp.Encode()
+		fullURL := rpc.SessionURL(req.URL, sess.BaseHost) + "?" + qp.Encode()
 
 		httpReq, err := http.NewRequestWithContext(ctx, "POST", fullURL, strings.NewReader(bodyStr))
 		if err != nil {
 			return "", fmt.Errorf("utls execute: %w", err)
 		}
 		headers := ChromeHeaders(sess, len(bodyStr))
+		headers["Cookie"] = session.CookieHeaderForURL(sess, httpReq.URL.String())
 		for k, v := range headers {
 			httpReq.Header.Set(k, v)
 		}

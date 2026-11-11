@@ -3,6 +3,8 @@ package transport
 import (
 	"fmt"
 
+	"github.com/missdeer/notebooklm-client/internal/rpc"
+	sessionstore "github.com/missdeer/notebooklm-client/internal/session"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -17,17 +19,17 @@ func ChromeHeaders(session types.NotebookRpcSession, contentLength int) map[stri
 		"Content-Type":       "application/x-www-form-urlencoded;charset=UTF-8",
 		"Content-Length":     fmt.Sprintf("%d", contentLength),
 		"User-Agent":         ua,
-		"Cookie":             session.Cookies,
-		"Origin":             "https://notebooklm.google.com",
-		"Referer":            "https://notebooklm.google.com/",
+		"Cookie":             sessionstore.CookieHeaderForURL(session, rpc.SessionBaseURL(session.BaseHost)+"/"),
+		"Origin":             rpc.SessionBaseURL(session.BaseHost),
+		"Referer":            rpc.SessionBaseURL(session.BaseHost) + "/",
 		"Accept":             "*/*",
 		"Accept-Language":    "en-US,en;q=0.9",
-		"Sec-Ch-Ua":         `"Chromium";v="131", "Not_A Brand";v="24"`,
-		"Sec-Ch-Ua-Mobile":  "?0",
+		"Sec-Ch-Ua":          `"Chromium";v="131", "Not_A Brand";v="24"`,
+		"Sec-Ch-Ua-Mobile":   "?0",
 		"Sec-Ch-Ua-Platform": `"Windows"`,
-		"Sec-Fetch-Dest":    "empty",
-		"Sec-Fetch-Mode":    "cors",
-		"Sec-Fetch-Site":    "same-origin",
-		"X-Same-Domain":     "1",
+		"Sec-Fetch-Dest":     "empty",
+		"Sec-Fetch-Mode":     "cors",
+		"Sec-Fetch-Site":     "same-origin",
+		"X-Same-Domain":      "1",
 	}
 }

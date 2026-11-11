@@ -43,6 +43,18 @@ npx @missdeer/notebooklm import-cookies --browser safari            # 仅 macOS
 npx @missdeer/notebooklm import-cookies --file ~/cookies.txt        # 任何 Netscape cookies.txt 导出
 ```
 
+`export-session` 兼容 `notebooklm.google.com` 与新版 `notebook.google.com`，无需 build label 保持旧前缀。导出和刷新时会重新采集包括 HttpOnly 在内的 Cookie，并在 session 中记录实际登录域名（`baseHost`），后续 RPC、上传和 token 刷新沿用该域名。已有 TypeScript session 仍可导入；缺少 `baseHost` 的旧 session 在刷新失败时会尝试新版域名。
+
+HTTP 请求按目标 URL 筛选 Cookie 的域、路径和有效期，避免把 Google 登录页专用 Cookie 发给 NotebookLM 而触发 `CookieMismatch`。自动刷新后的重试会同时更新 `at`、`bl`、`f.sid` 和 Cookie；刷新失败时不会把未变化的旧 session 当作恢复成功。
+
+如旧版导出一直等待或超时，请使用本地新构建重新登录并验证：
+
+```bash
+go build -o notebooklm ./cmd/notebooklm
+./notebooklm export-session
+./notebooklm list --transport http
+```
+
 > **关于 `import-cookies`**：只读取 `google.com` / `youtube.com` / `googleusercontent.com` 域的 cookie，拿到后立即用它们向 NotebookLM 换取 `at`/`bl`/`fsid`，最后写入 `session.json`。全流程**不启动浏览器**，适合服务器 / CI / 无图形环境。
 >
 > - **不带任何参数**：扫描默认路径下所有 Firefox profile（Windows `%APPDATA%\Mozilla\Firefox\Profiles`、macOS `~/Library/Application Support/Firefox/Profiles`、Linux `~/.mozilla/firefox` 及 XDG / snap / flatpak 变体）以及 macOS 上的 Safari，合并所有 profile 的 cookie。

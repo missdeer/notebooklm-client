@@ -122,8 +122,8 @@ func detectBrowserPath() string {
 	return ""
 }
 
-func (t *RodTransport) Init(ctx context.Context) error {
-	l := launcher.New()
+func (t *RodTransport) Init(ctx context.Context) (initErr error) {
+	l := launcher.New().Context(ctx)
 
 	bin := t.opts.ChromePath
 	if bin == "" {
@@ -157,7 +157,12 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		return &types.BrowserError{Msg: fmt.Sprintf("launch chrome: %v", err), Cause: err}
 	}
 
-	browser := rod.New().ControlURL(u)
+	browser := rod.New().ControlURL(u).Context(ctx)
+	defer func() {
+		if initErr != nil {
+			l.Kill()
+		}
+	}()
 	if err := browser.Connect(); err != nil {
 		return &types.BrowserError{Msg: fmt.Sprintf("connect to chrome: %v", err), Cause: err}
 	}
@@ -181,42 +186,52 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		log.Println("NotebookLM: First run — please log in to your Google account.")
 	}
 
-	// Wait for user to land on notebooklm.google.com with valid tokens.
-	// May go through Google login first — poll up to 3 minutes.
-	at, bl, fsid, language := t.waitForTokens(page, 180*time.Second)
-
-	if at == "" {
-		// Tokens not found — likely the page came from a login redirect
-		// and WIZ_global_data wasn't injected. Reload to get a clean page load.
-		currentURL := page.MustInfo().URL
-		log.Printf("NotebookLM: Tokens not found at %s, reloading...", currentURL)
-
-		if !strings.Contains(currentURL, "notebooklm.google.com") {
-			if err := page.Navigate(rpc.DashboardURL); err != nil {
-				return fmt.Errorf("navigate after login: %w", err)
-			}
+	// Login can redirect to either consumer host. Do not require a particular
+	// build-label prefix: Google changes it independently of the protocol.
+	tokens, err := t.waitForTokens(page, 180*time.Second)
+	if err != nil {
+		return err
+	}
+	if tokens.AT == "" {
+		info, err := page.Info()
+		if err != nil {
+			return fmt.Errorf("inspect login page: %w", err)
+		}
+		if rpc.NotebookHost(info.URL) == "" {
+			err = page.Navigate(rpc.DashboardURL)
 		} else {
-			if err := page.Reload(); err != nil {
-				return fmt.Errorf("reload after login: %w", err)
-			}
+			err = page.Reload()
 		}
-		if err := page.WaitLoad(); err != nil {
-			return fmt.Errorf("wait for reload: %w", err)
+		if err != nil {
+			return fmt.Errorf("reload after login: %w", err)
 		}
-
-		at, bl, fsid, language = t.waitForTokens(page, 60*time.Second)
+		tokens, err = t.waitForTokens(page, 60*time.Second)
+		if err != nil {
+			return err
+		}
 	}
-
-	if at == "" {
-		return types.NewSessionError("failed to extract tokens from page (not logged in?)", nil)
+	if tokens.AT == "" {
+		return types.NewSessionError("failed to extract tokens; complete Google sign-in in the browser and retry export-session", nil)
 	}
+	sess, err := t.extractSession(page, tokens)
+	if err != nil {
+		return err
+	}
+	t.browser = browser
+	t.page = page
+	t.session = sess
+	log.Printf("NotebookLM: Connected via browser (rod)")
+	return nil
+}
 
+// extractSession takes a fresh CDP cookie snapshot, including HttpOnly cookies.
+func (t *RodTransport) extractSession(page *rod.Page, tokens types.NotebookRpcSession) (types.NotebookRpcSession, error) {
 	// Use CDP Network.getAllCookies to get ALL browser cookies including HttpOnly ones
 	// (SID, HSID, SSID, etc.) across all domains — not just the current page URL.
 	// This matches the TS implementation which uses cdp.send('Network.getAllCookies').
 	allCookiesResult, err := proto.NetworkGetAllCookies{}.Call(page)
 	if err != nil {
-		return fmt.Errorf("get all cookies: %w", err)
+		return types.NotebookRpcSession{}, fmt.Errorf("get all cookies: %w", err)
 	}
 
 	var jar []types.SessionCookie
@@ -256,26 +271,17 @@ func (t *RodTransport) Init(ctx context.Context) error {
 		userAgent = ua.Value.Str()
 	}
 
-	t.browser = browser
-	t.page = page
-	t.session = types.NotebookRpcSession{
-		AT:        at,
-		BL:        bl,
-		FSID:      fsid,
-		Cookies:   joinStrings(cookieParts, "; "),
-		CookieJar: jar,
-		UserAgent: userAgent,
-		Language:  language,
-	}
-
-	log.Printf("NotebookLM: Connected via browser (rod)")
-	return nil
+	tokens.Cookies = joinStrings(cookieParts, "; ")
+	tokens.CookieJar = jar
+	tokens.UserAgent = userAgent
+	return tokens, nil
 }
 
 func (t *RodTransport) Execute(ctx context.Context, req Request) (string, error) {
 	t.mu.RLock()
 	sess := t.session
 	t.mu.RUnlock()
+	req = requestWithSession(req, sess)
 
 	headers := ChromeHeaders(sess, 0)
 	headersJSON, _ := json.Marshal(headers)
@@ -303,7 +309,7 @@ func (t *RodTransport) Execute(ctx context.Context, req Request) (string, error)
 			credentials: 'include'
 		});
 		return await resp.text();
-	}`, string(qpJSON), string(headersJSON), string(bodyJSON), req.URL)
+	}`, string(qpJSON), string(headersJSON), string(bodyJSON), rpc.SessionURL(req.URL, sess.BaseHost))
 
 	result, err := t.page.Eval(script)
 	if err != nil {
@@ -322,60 +328,49 @@ func (t *RodTransport) RefreshSession(ctx context.Context) error {
 	if t.page == nil {
 		return fmt.Errorf("no browser page available")
 	}
-	log.Println("NotebookLM: Refreshing session (reloading page)...")
-	if err := t.page.Navigate(rpc.DashboardURL); err != nil {
+	page := t.page.Context(ctx)
+	sess := t.GetSession()
+	if err := page.Navigate(rpc.SessionBaseURL(sess.BaseHost) + "/"); err != nil {
 		return err
 	}
-	if err := t.page.WaitLoad(); err != nil {
+	return t.captureSession(page, 30*time.Second)
+}
+
+func (t *RodTransport) captureSession(page *rod.Page, timeout time.Duration) error {
+	tokens, err := t.waitForTokens(page, timeout)
+	if err != nil {
 		return err
 	}
-	time.Sleep(3 * time.Second)
-
-	result, err := t.page.Eval(`() => {
-		const d = window.WIZ_global_data;
-		if (!d || !d.SNlM0e) return null;
-		return { at: d.SNlM0e, bl: d.cfb2h, fsid: d.FdrFJe };
-	}`)
-	if err != nil || result == nil {
-		return types.NewSessionError("failed to extract tokens after page reload", nil)
+	if tokens.AT == "" {
+		return types.NewSessionError("failed to extract authenticated NotebookLM tokens", nil)
 	}
-
-	var tokens struct {
-		AT   string `json:"at"`
-		BL   string `json:"bl"`
-		FSID string `json:"fsid"`
+	sess, err := t.extractSession(page, tokens)
+	if err != nil {
+		return err
 	}
-	if err := json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens); err != nil || tokens.AT == "" {
-		return types.NewSessionError("token extraction failed after refresh", nil)
-	}
-
 	t.mu.Lock()
-	t.session.AT = tokens.AT
-	if tokens.BL != "" {
-		t.session.BL = tokens.BL
-	}
-	if tokens.FSID != "" {
-		t.session.FSID = tokens.FSID
-	}
+	t.session = sess
 	t.mu.Unlock()
-
-	log.Println("NotebookLM: Session refreshed (browser)")
 	return nil
 }
 
 func (t *RodTransport) ExportSession() (*types.NotebookRpcSession, error) {
-	t.mu.RLock()
-	s := t.session
-	t.mu.RUnlock()
+	if t.page == nil {
+		return nil, fmt.Errorf("no browser page available")
+	}
+	if err := t.captureSession(t.page, 10*time.Second); err != nil {
+		return nil, err
+	}
+	s := t.GetSession()
 	return &s, nil
 }
 
 func (t *RodTransport) Close() error {
 	if t.page != nil {
-		t.page.Close()
+		t.page.Context(context.Background()).Close()
 	}
 	if t.browser != nil {
-		return t.browser.Close()
+		return t.browser.Context(context.Background()).Close()
 	}
 	return nil
 }
@@ -391,38 +386,46 @@ func joinStrings(parts []string, sep string) string {
 	return result
 }
 
-// waitForTokens polls the page until it's on notebooklm.google.com with valid WIZ_global_data tokens.
-// Returns empty strings if the timeout expires without finding tokens.
-func (t *RodTransport) waitForTokens(page *rod.Page, timeout time.Duration) (at, bl, fsid, language string) {
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		result, err := page.Eval(`() => {
-			if (!location.hostname.includes('notebooklm.google.com')) return null;
-			const d = window.WIZ_global_data;
-			if (!d || !d.SNlM0e) return null;
-			const bl = d.cfb2h || '';
-			if (!bl.includes('labs-tailwind')) return null;
-			return {
-				at: d.SNlM0e || '',
-				bl: bl,
-				fsid: d.FdrFJe || '',
-				lang: document.documentElement.lang || ''
-			};
-		}`)
-		if err == nil && result != nil && result.Value.Str() != "" {
-			var tokens struct {
-				AT   string `json:"at"`
-				BL   string `json:"bl"`
-				FSID string `json:"fsid"`
-				Lang string `json:"lang"`
-			}
-			if err := json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens); err == nil && tokens.AT != "" {
-				return tokens.AT, tokens.BL, tokens.FSID, tokens.Lang
+// Read inline HTML as well as WIZ_global_data. Some browser execution contexts
+// cannot see the page's global object, while the bootstrap JSON remains in DOM.
+const sessionTokensScript = `() => {
+ if (!['notebooklm.google.com', 'notebook.google.com'].includes(location.hostname)) return null;
+ const d = window.WIZ_global_data || {};
+ const html = document.documentElement.outerHTML;
+ const read = key => {
+  if (d[key]) return String(d[key]);
+  const match = html.match(new RegExp('"' + key + '"\\s*:\\s*("(?:[^"\\\\]|\\\\.)*")'));
+  if (!match) return '';
+  try { return JSON.parse(match[1]); } catch { return ''; }
+ };
+ const at = read('SNlM0e');
+ if (!at) return null;
+ return { at, bl: read('cfb2h'), fsid: read('FdrFJe'),
+  baseHost: location.hostname,
+  language: (document.documentElement.lang || navigator.language || 'en').split('-')[0] };
+}`
+
+func (t *RodTransport) waitForTokens(page *rod.Page, timeout time.Duration) (types.NotebookRpcSession, error) {
+	ctx, cancel := context.WithTimeout(page.GetContext(), timeout)
+	defer cancel()
+	pollPage := page.Context(ctx)
+	for {
+		result, err := pollPage.Eval(sessionTokensScript)
+		if err == nil && result != nil {
+			var tokens types.NotebookRpcSession
+			if json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens) == nil && tokens.AT != "" {
+				return tokens, nil
 			}
 		}
-		time.Sleep(2 * time.Second)
+		select {
+		case <-ctx.Done():
+			if page.GetContext().Err() != nil {
+				return types.NotebookRpcSession{}, page.GetContext().Err()
+			}
+			return types.NotebookRpcSession{}, nil
+		case <-time.After(2 * time.Second):
+		}
 	}
-	return "", "", "", ""
 }
 
 func dirExists(path string) bool {
