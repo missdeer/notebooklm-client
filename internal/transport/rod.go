@@ -188,7 +188,7 @@ func (t *RodTransport) Init(ctx context.Context) (initErr error) {
 
 	// Login can redirect to either consumer host. Do not require a particular
 	// build-label prefix: Google changes it independently of the protocol.
-	tokens, err := t.waitForTokens(page, 180*time.Second)
+	tokens, page, err := t.waitForTokens(ctx, page, 180*time.Second)
 	if err != nil {
 		return err
 	}
@@ -205,7 +205,7 @@ func (t *RodTransport) Init(ctx context.Context) (initErr error) {
 		if err != nil {
 			return fmt.Errorf("reload after login: %w", err)
 		}
-		tokens, err = t.waitForTokens(page, 60*time.Second)
+		tokens, page, err = t.waitForTokens(ctx, page, 60*time.Second)
 		if err != nil {
 			return err
 		}
@@ -333,11 +333,11 @@ func (t *RodTransport) RefreshSession(ctx context.Context) error {
 	if err := page.Navigate(rpc.SessionBaseURL(sess.BaseHost) + "/"); err != nil {
 		return err
 	}
-	return t.captureSession(page, 30*time.Second)
+	return t.captureSession(ctx, page, 30*time.Second)
 }
 
-func (t *RodTransport) captureSession(page *rod.Page, timeout time.Duration) error {
-	tokens, err := t.waitForTokens(page, timeout)
+func (t *RodTransport) captureSession(ctx context.Context, page *rod.Page, timeout time.Duration) error {
+	tokens, page, err := t.waitForTokens(ctx, page, timeout)
 	if err != nil {
 		return err
 	}
@@ -349,6 +349,7 @@ func (t *RodTransport) captureSession(page *rod.Page, timeout time.Duration) err
 		return err
 	}
 	t.mu.Lock()
+	t.page = page
 	t.session = sess
 	t.mu.Unlock()
 	return nil
@@ -358,7 +359,7 @@ func (t *RodTransport) ExportSession() (*types.NotebookRpcSession, error) {
 	if t.page == nil {
 		return nil, fmt.Errorf("no browser page available")
 	}
-	if err := t.captureSession(t.page, 10*time.Second); err != nil {
+	if err := t.captureSession(t.page.Browser().GetContext(), t.page, 10*time.Second); err != nil {
 		return nil, err
 	}
 	s := t.GetSession()
@@ -405,27 +406,51 @@ const sessionTokensScript = `() => {
   language: (document.documentElement.lang || navigator.language || 'en').split('-')[0] };
 }`
 
-func (t *RodTransport) waitForTokens(page *rod.Page, timeout time.Duration) (types.NotebookRpcSession, error) {
-	ctx, cancel := context.WithTimeout(page.GetContext(), timeout)
+func (t *RodTransport) waitForTokens(parent context.Context, page *rod.Page, timeout time.Duration) (types.NotebookRpcSession, *rod.Page, error) {
+	// Rod cancels a page's context when its CDP session detaches. That can
+	// happen during sign-in without the user cancelling the command. Keep the
+	// login deadline tied to the browser and reattach to the same tab.
+	ctx, cancel := context.WithTimeout(parent, timeout)
 	defer cancel()
-	pollPage := page.Context(ctx)
 	for {
-		result, err := pollPage.Eval(sessionTokensScript)
+		var err error
+		page, err = reconnectLoginPage(page)
+		if err != nil {
+			return types.NotebookRpcSession{}, page, err
+		}
+		result, err := page.Context(ctx).Eval(sessionTokensScript)
 		if err == nil && result != nil {
 			var tokens types.NotebookRpcSession
 			if json.Unmarshal([]byte(result.Value.JSON("", "")), &tokens) == nil && tokens.AT != "" {
-				return tokens, nil
+				return tokens, page, nil
 			}
 		}
 		select {
 		case <-ctx.Done():
-			if page.GetContext().Err() != nil {
-				return types.NotebookRpcSession{}, page.GetContext().Err()
+			if parent.Err() != nil {
+				return types.NotebookRpcSession{}, page, parent.Err()
 			}
-			return types.NotebookRpcSession{}, nil
+			return types.NotebookRpcSession{}, page, nil
 		case <-time.After(2 * time.Second):
 		}
 	}
+}
+
+func reconnectLoginPage(page *rod.Page) (*rod.Page, error) {
+	browser := page.Browser()
+	if err := browser.GetContext().Err(); err != nil {
+		return page, err
+	}
+	if page.GetContext().Err() == nil {
+		return page, nil
+	}
+	browser.RemoveState(page.TargetID)
+	reconnected, err := browser.PageFromTarget(page.TargetID)
+	if err != nil {
+		return page, fmt.Errorf("reconnect login tab (keep it open until login completes): %w", err)
+	}
+	log.Println("NotebookLM: Reconnected login tab; waiting for Google sign-in...")
+	return reconnected, nil
 }
 
 func dirExists(path string) bool {
