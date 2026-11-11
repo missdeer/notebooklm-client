@@ -8,8 +8,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/spf13/cobra"
 	"github.com/missdeer/notebooklm-client/internal/client"
+	"github.com/spf13/cobra"
 )
 
 var createCmd = &cobra.Command{
@@ -54,7 +54,9 @@ var listCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
 			notebooks, err := c.ListNotebooks(ctx)
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 			if len(notebooks) == 0 {
 				fmt.Fprintln(os.Stderr, "No notebooks found")
 				return nil
@@ -80,7 +82,9 @@ var detailCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
 			title, sources, err := c.GetNotebookDetail(ctx, args[0])
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 			fmt.Printf("Title: %s\n", title)
 			fmt.Printf("Sources: %d\n", len(sources))
 			for _, s := range sources {
@@ -90,7 +94,13 @@ var detailCmd = &cobra.Command{
 				}
 				fmt.Printf("  - %s  %s  (%d words)\n", s.ID, s.Title, wc)
 			}
-			return nil
+			artifacts, err := c.GetArtifacts(ctx, args[0])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Could not list Studio artifacts: %v\n", err)
+				return nil
+			}
+			fmt.Printf("Studio (%d):\n", len(artifacts))
+			return printStudioArtifacts(os.Stdout, artifacts)
 		})
 	},
 }

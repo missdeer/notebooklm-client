@@ -66,38 +66,50 @@ func SaveReport(ctx context.Context, call api.RpcCaller, artifactID, outputDir s
 
 func SaveSlideDeck(ctx context.Context, call api.RpcCaller, download DownloadFn, artifactID, outputDir string) (pptxPath, pdfPath string, err error) {
 	meta, err := PollArtifactMetadata(ctx, call, artifactID, func(m []any) bool {
-		if len(m) > 16 {
-			if arr, ok := m[16].([]any); ok && len(arr) > 0 {
-				return true
-			}
-		}
-		return false
+		pdf, pptx := slideDeckURLs(m)
+		return pdf != "" || pptx != ""
 	}, 60)
 	if err != nil {
 		return "", "", fmt.Errorf("save slide deck: %w", err)
 	}
 
-	if len(meta) > 16 {
-		if arr, ok := meta[16].([]any); ok {
-			for _, item := range arr {
-				u, ok := item.(string)
-				if !ok {
-					if sub, ok := item.([]any); ok && len(sub) > 0 {
-						u, _ = sub[0].(string)
-					}
-				}
-				if u == "" {
-					continue
-				}
-				if strings.HasSuffix(u, ".pptx") || strings.Contains(u, "pptx") {
-					pptxPath, _ = download(ctx, u, outputDir, fmt.Sprintf("slides_%d.pptx", time.Now().UnixMilli()))
-				} else if strings.HasSuffix(u, ".pdf") || strings.Contains(u, "pdf") {
-					pdfPath, _ = download(ctx, u, outputDir, fmt.Sprintf("slides_%d.pdf", time.Now().UnixMilli()))
-				}
-			}
+	pdfURL, pptxURL := slideDeckURLs(meta)
+	if pptxURL != "" {
+		pptxPath, err = download(ctx, pptxURL, outputDir, fmt.Sprintf("slides_%d.pptx", time.Now().UnixMilli()))
+		if err != nil {
+			return "", "", fmt.Errorf("download slide deck PPTX: %w", err)
+		}
+	}
+	if pdfURL != "" {
+		pdfPath, err = download(ctx, pdfURL, outputDir, fmt.Sprintf("slides_%d.pdf", time.Now().UnixMilli()))
+		if err != nil {
+			return pptxPath, "", fmt.Errorf("download slide deck PDF: %w", err)
+		}
+		// Match TS: the primary path is the PDF when PPTX is unavailable.
+		if pptxPath == "" {
+			pptxPath = pdfPath
 		}
 	}
 	return pptxPath, pdfPath, nil
+}
+
+func slideDeckURLs(meta []any) (pdf, pptx string) {
+	if len(meta) <= 16 {
+		return "", ""
+	}
+	cfg, ok := meta[16].([]any)
+	if !ok {
+		return "", ""
+	}
+	urlAt := func(index int) string {
+		if index < len(cfg) {
+			if u, ok := cfg[index].(string); ok && (strings.HasPrefix(u, "https://") || strings.HasPrefix(u, "http://")) {
+				return u
+			}
+		}
+		return ""
+	}
+	return urlAt(3), urlAt(4)
 }
 
 func SaveInfographic(ctx context.Context, call api.RpcCaller, download DownloadFn, artifactID, outputDir string) (string, error) {

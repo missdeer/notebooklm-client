@@ -3,6 +3,7 @@ package parser
 import (
 	"strings"
 
+	"github.com/missdeer/notebooklm-client/internal/rpc"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -35,8 +36,8 @@ func ParseArtifacts(raw string) []types.ArtifactInfo {
 	}
 
 	entries := innerArr
-	if len(entries) == 1 {
-		if first, ok := entries[0].([]any); ok {
+	if len(entries) == 1 || (len(entries) > 1 && getArray(entries, 1) == nil) {
+		if first, ok := entries[0].([]any); ok && (len(first) == 0 || getArray(first, 0) != nil) {
 			entries = first
 		}
 	}
@@ -73,11 +74,21 @@ func ParseArtifacts(raw string) []types.ArtifactInfo {
 		}
 
 		artifact := types.ArtifactInfo{ID: id, Title: title, Type: artType}
+		if status, ok := getFloat(entry, 4); ok {
+			code := int(status)
+			artifact.StatusCode = &code
+		}
+		if artType == rpc.ArtifactSlideDeck {
+			artifact.DownloadURL = getString(entry, 16, 4)
+			if artifact.DownloadURL == "" {
+				artifact.DownloadURL = getString(entry, 16, 3)
+			}
+		}
 
 		if srcIDs := getArray(entry, 3); srcIDs != nil {
 			for _, sid := range srcIDs {
 				sidArr, ok := sid.([]any)
-				if !ok {
+				if !ok || len(sidArr) == 0 {
 					continue
 				}
 				if inner, ok := sidArr[0].([]any); ok && len(inner) > 0 {

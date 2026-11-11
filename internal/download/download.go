@@ -13,6 +13,7 @@ import (
 
 	"github.com/missdeer/notebooklm-client/internal/api"
 	"github.com/missdeer/notebooklm-client/internal/parser"
+	"github.com/missdeer/notebooklm-client/internal/rpc"
 	"github.com/missdeer/notebooklm-client/internal/types"
 )
 
@@ -108,14 +109,9 @@ func min(a, b int) int {
 	return b
 }
 
-// GetArtifactMetadata fetches raw artifact metadata via GetArtifactsFiltered.
+// GetArtifactMetadata fetches one artifact via the same detail RPC used by TS.
 func GetArtifactMetadata(ctx context.Context, call api.RpcCaller, artifactID string) ([]any, error) {
-	// Re-use the parser.ParseEnvelopes approach
-	raw, err := call(ctx, "gArtLc", []any{
-		[]any{2, nil, nil, []any{1, nil, nil, nil, nil, nil, nil, nil, nil, nil, []any{1}}, []any{[]any{2, 1, 3}}},
-		nil,
-		fmt.Sprintf(`artifact.id = "%s"`, artifactID),
-	}, "")
+	raw, err := call(ctx, rpc.GetInteractiveHTML, []any{artifactID}, "")
 	if err != nil {
 		return nil, err
 	}
@@ -126,11 +122,6 @@ func GetArtifactMetadata(ctx context.Context, call api.RpcCaller, artifactID str
 	first := envelopes[0]
 	if len(first) > 0 {
 		if arr, ok := first[0].([]any); ok {
-			if len(arr) > 0 {
-				if inner, ok := arr[0].([]any); ok {
-					return inner, nil
-				}
-			}
 			return arr, nil
 		}
 	}

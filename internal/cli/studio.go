@@ -4,18 +4,67 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
+	"text/tabwriter"
 
-	"github.com/spf13/cobra"
 	"github.com/missdeer/notebooklm-client/internal/api"
 	"github.com/missdeer/notebooklm-client/internal/client"
+	"github.com/missdeer/notebooklm-client/internal/types"
+	"github.com/spf13/cobra"
 )
 
 var studioCmd = &cobra.Command{
 	Use:   "studio",
-	Short: "Manage studio artifacts (delete, revise, export)",
+	Short: "Manage studio artifacts (status, delete, revise, export)",
+}
+
+var studioStatusCmd = &cobra.Command{
+	Use:     "status <notebook-id>",
+	Aliases: []string{"list"},
+	Short:   "List Studio artifact IDs, types and generation status",
+	Args:    cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
+			artifacts, err := c.GetArtifacts(ctx, args[0])
+			if err != nil {
+				return err
+			}
+			asJSON, _ := cmd.Flags().GetBool("json")
+			if asJSON {
+				if artifacts == nil {
+					artifacts = []types.ArtifactInfo{}
+				}
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(artifacts)
+			}
+			return printStudioArtifacts(os.Stdout, artifacts)
+		})
+	},
+}
+
+func printStudioArtifacts(out io.Writer, artifacts []types.ArtifactInfo) error {
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(w, "ID\tTYPE\tSTATUS\tTITLE")
+	labels := map[int]string{1: "audio", 2: "report", 3: "video", 4: "quiz/flashcards", 5: "mind_map", 7: "infographic", 8: "slide_deck", 9: "data_table"}
+	statuses := map[int]string{1: "in_progress", 2: "queued", 3: "completed", 4: "failed", 5: "suggested"}
+	for _, a := range artifacts {
+		label := labels[a.Type]
+		if label == "" {
+			label = fmt.Sprintf("type:%d", a.Type)
+		}
+		status := "unknown"
+		if a.StatusCode != nil {
+			if name, ok := statuses[*a.StatusCode]; ok {
+				status = name
+			}
+		}
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", a.ID, label, status, a.Title)
+	}
+	return w.Flush()
 }
 
 var studioDeleteCmd = &cobra.Command{
@@ -175,11 +224,12 @@ var chatConfigureCmd = &cobra.Command{
 }
 
 func init() {
-	subs := []*cobra.Command{studioDeleteCmd, studioReviseCmd, studioExportCmd}
+	subs := []*cobra.Command{studioStatusCmd, studioDeleteCmd, studioReviseCmd, studioExportCmd}
 	for _, sc := range subs {
 		studioCmd.AddCommand(sc)
 		addTransportFlags(sc)
 	}
+	studioStatusCmd.Flags().Bool("json", false, "Emit JSON")
 	studioReviseCmd.Flags().StringArray("slide", nil, "Per-slide instruction in <index>:<text> form (repeatable)")
 	studioExportCmd.Flags().String("format", "docs", "Export target: docs, sheets")
 	studioExportCmd.Flags().String("title", "", "Title for the new document")

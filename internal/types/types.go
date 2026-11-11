@@ -203,6 +203,7 @@ type ArtifactInfo struct {
 	ID              string
 	Title           string
 	Type            int
+	StatusCode      *int
 	DownloadURL     string
 	StreamURL       string
 	HlsURL          string

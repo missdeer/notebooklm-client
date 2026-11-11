@@ -50,6 +50,7 @@ Recognize requests like:
 - "Describe / summarize notebook X" (AI-generated overview + suggested prompts)
 - "Show / dump the raw text of source Y"
 - "Delete this artifact" / "Revise slide N of this deck to say ..."
+- "List Studio artifacts / find my generated slides / check generation status"
 - "Export this report to Google Docs" / "Export this data table to Google Sheets"
 - "Switch chat to learning-guide style / shorter responses" (configure chat)
 
@@ -60,7 +61,7 @@ All commands use `--transport auto` for headless mode (Go uses native uTLS, no s
 | Task | Command |
 |------|---------|
 | List notebooks | `notebooklm list --transport auto` |
-| Notebook details | `notebooklm detail <id> --transport auto` |
+| Notebook details (sources + Studio artifacts) | `notebooklm detail <id> --transport auto` |
 | Create empty notebook | `notebooklm create [title] --transport auto` |
 | Rename notebook | `notebooklm rename <id> "New Title" --transport auto` |
 | Add source to existing notebook | `notebooklm source add <id> --transport auto --file ./paper.pdf` |
@@ -84,6 +85,8 @@ All commands use `--transport auto` for headless mode (Go uses native uTLS, no s
 | Import research into notebook | `notebooklm research import <id> <research-id> --transport auto` |
 | Notebook AI summary + prompts | `notebooklm describe <id> --transport auto [--json]` |
 | Source raw indexed text | `notebooklm source content <source-id> --transport auto [--json]` |
+| List Studio artifacts and status | `notebooklm studio status <notebook-id> --transport auto` (`studio list` is an alias) |
+| Studio artifacts as JSON | `notebooklm studio status <notebook-id> --transport auto --json` |
 | Delete studio artifact(s) | `notebooklm studio delete <artifact-id...> --transport auto` |
 | Revise slide deck | `notebooklm studio revise <artifact-id> --transport auto --slide "0:Tighten intro" --slide "3:Add chart"` |
 | Export artifact to Docs/Sheets | `notebooklm studio export <notebook-id> <artifact-id> --transport auto --format docs --title "Q2 Brief"` |
@@ -160,7 +163,7 @@ NOTEBOOKLM_HOME=~/.notebooklm-work notebooklm list --transport auto
 
 ## Autonomy Rules
 
-**Run automatically:** `list`, `detail`, `describe`, `diagnose`, `session-status`, `source list`, `source summary`, `source content`, `note list`, `share status`, `research status`
+**Run automatically:** `list`, `detail`, `describe`, `diagnose`, `session-status`, `source list`, `source summary`, `source content`, `note list`, `share status`, `research status`, `studio status`, `studio list`
 
 **Ask before running:**
 - Generation commands (long-running, creates notebook)
@@ -261,12 +264,29 @@ notebooklm source content <source-id> --transport auto   # raw text dump for gre
 `describe` returns the notebook summary plus a few seed chat prompts. `source content` is the raw indexed text — useful for scripted search without going through chat.
 
 ### Revise a slide deck after the first draft
+
+Find the existing artifact ID first with `studio status <notebook-id>`.
+
 ```bash
 notebooklm studio revise <artifact-id> --transport auto \
   --slide "0:Tighten the intro to two sentences" \
   --slide "3:Replace the bar chart with a timeline"
 ```
 Creates a NEW slide-deck artifact with the instructions applied. The original is untouched. Use `studio delete <old-artifact-id>` afterwards if you want to discard the first draft.
+
+### Find generated slides after a CLI timeout
+
+```bash
+notebooklm list --transport auto
+notebooklm studio status <notebook-id> --transport auto
+notebooklm studio status <notebook-id> --transport auto --json
+```
+
+Match the notebook and artifact title, then report the actual artifact ID and status. `slide_deck` is type 8; status code 3 means completed. JSON fields use Go field names, including `ID`, `Title`, `Type`, `StatusCode`, and `DownloadURL`; the latter prefers PPTX and falls back to PDF for slides. Status code 1 is in progress, 2 is queued, 4 is failed, and 5 is suggested. Audio may expose playable media at code 2, so inspect its URLs before concluding it is still queued.
+
+Check existing artifacts before repeating generation: a metadata/download timeout does not mean generation failed, and generating again consumes quota and can create duplicates. Use the listed ID for subsequent operations; do not select an unrelated audio/video artifact as a substitute for slides. The Go CLI currently has no standalone `studio download` command; `slides` starts a new generation workflow.
+
+If the installed binary does not recognize `studio status`, use a build containing this command. When the local `notebooklm-mcp-cli` checkout is available, its read-only `get_studio_status(notebook_id)` / `poll_studio_status(notebook_id)` can also list actual IDs. Its authentication storage differs from Go's; never print cookies or tokens when adapting a session.
 
 ### Export a report / data table to Google Drive
 ```bash
@@ -298,6 +318,9 @@ Persists server-side, so subsequent `chat` calls (and the web UI) inherit the ne
 | "Rate limited" | Wait a few minutes, retry |
 | "curl-impersonate binary not found" | Either drop `--transport curl` (default auto picks native uTLS) or install curl-impersonate |
 | "Audio download returned login page" | Re-run `notebooklm export-session` to refresh domain-scoped cookies for CDN downloads |
+| "artifact metadata poll timed out after 60 attempts" | List existing artifacts with `studio status` before retrying generation. Older Go builds used an invalid metadata filter; update/rebuild the client as described below. A timeout alone does not establish an ID mismatch, expired session, or exhausted quota. |
+
+For code-level diagnosis of slide metadata: list artifacts with `gArtLc([[2], notebookId, 'NOT artifact.status = "ARTIFACT_STATUS_SUGGESTED"'])`, then fetch a single artifact with `v9rmvd([artifactId])`, matching the TypeScript implementation. The old Go request `gArtLc([userConfig, null, 'artifact.id = "..."'])` was verified to return `INVALID_ARGUMENT` even for a real completed artifact ID. Unwrap the detail response once to obtain the artifact array. Slide download URLs are at `artifact[16][3]` (PDF) and `[16][4]` (PPTX), as used by TS and Python; do not infer format from URL suffixes. Wait for an actual download URL, and propagate download errors instead of reporting an empty output path as success.
 
 ## Known Limits
 
@@ -306,4 +329,4 @@ Persists server-side, so subsequent `chat` calls (and the web UI) inherit the ne
 - Studio artifact types are server-driven (`get_studio_config`) — Google may add/remove types anytime
 - Session auto-refreshes on `at`/`bl` expiry (~1–2 h); long-lived cookies last weeks
 - Research deep-mode imports 40+ URL sources; readiness threshold is "70% indexed or 30 sources, whichever is lower" — a handful of unreachable URLs is tolerated by design
-- Generation RPC sometimes returns a task ID that differs from the final artifact ID; the poller falls back to any ready AUDIO/VIDEO artifact with a download URL
+- The legacy workflow poller can fall back to a ready AUDIO/VIDEO artifact when an exact ID match is missing. This fallback does not apply to slides and is not evidence that a particular slide timeout was caused by an ID mismatch; use `studio status` to identify the actual artifact.
