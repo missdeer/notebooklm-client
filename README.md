@@ -64,6 +64,10 @@ npx @missdeer/notebooklm import-cookies --file ~/cookies.txt        # 任何 Net
 
 HTTP 请求按目标 URL 筛选 Cookie 的域、路径和有效期，避免把 Google 登录页专用 Cookie 发给 NotebookLM 而触发 `CookieMismatch`。自动刷新后的重试会同时更新 `at`、`bl`、`f.sid` 和 Cookie；刷新失败时不会把未变化的旧 session 当作恢复成功。
 
+> **Tips：** 如果执行 `export-session` 时 Chrome 浏览器中报错 `Can't sign in`，**不要关掉浏览器**：先在浏览器工具栏按钮中登录自己的账号，再打开 `https://notebook.google.com` 登录账号，然后关闭浏览器，重新执行 `export-session`，即可直接使用刚才登录的 session 信息。
+
+> **Tips：** 一般建议使用官方方式安装 Chrome。`export-session` 命令会到官方安装目录寻找 Chrome 可执行文件，如果找不到 Chrome，则会自动下载一个 Chromium。
+
 如旧版导出一直等待或超时，请使用本地新构建重新登录并验证：
 
 ```bash
