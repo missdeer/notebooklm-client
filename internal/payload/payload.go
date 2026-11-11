@@ -11,16 +11,17 @@ var AudioLengthCode = map[types.AudioLength]int{
 }
 
 var VideoFormatCode = map[types.VideoFormat]int{
-	"explainer": 1, "brief": 2, "cinematic": 3,
+	"explainer": 1, "brief": 2, "cinematic": 3, "short": 4,
 }
 
 var VideoStyleCode = map[types.VideoStyle]int{
 	"auto": 1, "classic": 3, "whiteboard": 4, "kawaii": 5,
 	"anime": 6, "watercolor": 7, "retro_print": 8,
+	"auto_select": 1, "custom": 2, "heritage": 9, "paper_craft": 10,
 }
 
 var QuizQuantityCode = map[types.QuizQuantity]int{
-	"fewer": 1, "standard": 2,
+	"fewer": 1, "standard": 2, "more": 3,
 }
 
 var QuizDifficultyCode = map[types.QuizDifficulty]int{
@@ -37,6 +38,7 @@ var InfographicDetailCode = map[types.InfographicDetail]int{
 
 var InfographicStyleCode = map[types.InfographicStyle]int{
 	"sketch_note": 2, "professional": 3, "bento_grid": 4,
+	"auto_select": 1, "editorial": 5, "instructional": 6, "bricks": 7, "clay": 8, "anime": 9, "kawaii": 10, "scientific": 11,
 }
 
 var SlideFormatCode = map[types.SlideDeckFormat]int{
@@ -161,10 +163,20 @@ func BuildVideoPayload(sidsTriple, sidsDouble any, opts types.VideoArtifactOptio
 		styleCode = intOrNil(VideoStyleCode, opts.Style)
 	}
 
-	return []any{
+	result := []any{
 		nil, nil, 3, sidsTriple, nil, nil, nil, nil,
 		[]any{nil, nil, []any{sidsDouble, lang, strOrNil(opts.Instructions), nil, formatCode, styleCode}},
 	}
+	if opts.Format == "short" {
+		result[8] = []any{nil, nil, []any{sidsDouble, nil, strOrNil(opts.Instructions), nil, 4, nil, nil, 1}}
+		return result
+	}
+	if opts.StylePrompt != "" {
+		options := result[8].([]any)
+		video := options[2].([]any)
+		options[2] = append(video, opts.StylePrompt)
+	}
+	return result
 }
 
 func BuildQuizPayload(sidsTriple any, opts types.QuizArtifactOptions) []any {

@@ -16,7 +16,7 @@ func ParseResearchResults(raw string) ResearchParseResult {
 	}
 
 	outerList := getArray(innerArr, 0)
-	if outerList == nil {
+	if len(outerList) == 0 {
 		return ResearchParseResult{}
 	}
 

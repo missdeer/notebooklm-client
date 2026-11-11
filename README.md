@@ -15,6 +15,23 @@ Google [NotebookLM](https://notebooklm.google.com/) CLI 的 Go 重写版本 — 
 | 浏览器自动化 | Puppeteer | rod |
 | 部署 | `npm install` + node_modules | 单个可执行文件 |
 
+## AI Agent Skill
+
+技能位于 [`skills/notebooklm/`](skills/notebooklm/SKILL.md)，采用一个入口和按需读取的参考文档。
+
+```bash
+# 从仓库安装到当前项目（Codex）
+npx skills add missdeer/notebooklm-client --skill notebooklm --agent codex
+
+# 从本地 checkout 安装
+npx skills add ./skills --skill notebooklm --agent codex
+
+# 只列出可用技能，不安装
+npx skills add ./skills --list
+```
+
+将 `--agent codex` 换成目标工具；添加 `--global` 可安装到用户级目录。技能提供操作说明，`notebooklm` CLI 需要另外安装或构建。
+
 ## 构建
 
 ```bash

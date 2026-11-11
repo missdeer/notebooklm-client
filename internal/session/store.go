@@ -34,7 +34,7 @@ func Save(session types.NotebookRpcSession, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if err := os.WriteFile(path, data, 0o600); err != nil {
+	if err := saveCredentialBytes(path, data); err != nil {
 		return "", err
 	}
 	return path, nil
@@ -44,7 +44,7 @@ func Load(path string) (*types.NotebookRpcSession, error) {
 	if path == "" {
 		path = rpc.SessionPath()
 	}
-	data, err := os.ReadFile(path)
+	data, err := credentialBytes(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil, nil
@@ -71,7 +71,7 @@ func HasValid(path string, maxAge time.Duration) (bool, error) {
 	if maxAge == 0 {
 		maxAge = 2 * time.Hour
 	}
-	data, err := os.ReadFile(path)
+	data, err := credentialBytes(path)
 	if err != nil {
 		return false, nil
 	}

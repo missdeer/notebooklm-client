@@ -75,7 +75,7 @@ func DeleteArtifact(ctx context.Context, call RpcCaller, artifactID string) erro
 }
 
 func RenameArtifact(ctx context.Context, call RpcCaller, artifactID, newTitle string) error {
-	_, err := call(ctx, rpc.RenameArtifact, []any{artifactID, newTitle}, "")
+	_, err := call(ctx, rpc.RenameArtifact, []any{[]any{artifactID, newTitle}, []any{[]any{"title"}}}, "")
 	if err != nil {
 		return fmt.Errorf("rename artifact: %w", err)
 	}

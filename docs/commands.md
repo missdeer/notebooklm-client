@@ -4,6 +4,8 @@ Complete list of commands and options for the `notebooklm` CLI.
 
 ## Global Flags
 
+The complete command groups are documented in [Go CLI](cli.md).
+
 Available on all commands:
 
 | Flag | Description | Default |

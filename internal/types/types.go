@@ -279,6 +279,7 @@ func (o ReportArtifactOptions) ArtifactType() string { return "report" }
 
 type VideoArtifactOptions struct {
 	Instructions string
+	StylePrompt  string
 	Language     string
 	Format       VideoFormat
 	Style        VideoStyle

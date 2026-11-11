@@ -65,6 +65,9 @@ func New() *NotebookClient {
 	}
 }
 
+// NewWithTransport constructs a client around an already initialized transport.
+func NewWithTransport(t transport.Transport) *NotebookClient { c := New(); c.transport = t; return c }
+
 func (c *NotebookClient) Connect(ctx context.Context, opts ConnectOptions) error {
 	c.transportMode = opts.Transport
 	c.proxy = opts.Proxy
@@ -329,6 +332,14 @@ func (c *NotebookClient) bindChatThread(notebookID, threadID string) {
 	state.threadID = threadID
 	state.history = nil
 	state.turnCounter = 0
+}
+
+// SelectChatConversation binds subsequent queries to an explicit conversation.
+func (c *NotebookClient) SelectChatConversation(notebookID, conversationID string) {
+	lock := c.chatLock(notebookID)
+	lock.Lock()
+	defer lock.Unlock()
+	c.bindChatThread(notebookID, conversationID)
 }
 
 // ensureChatThread resolves the notebook's default chat thread before sending.

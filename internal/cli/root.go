@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/missdeer/notebooklm-client/internal/rpc"
+	"github.com/spf13/cobra"
 )
 
 var homeDir string
@@ -50,5 +50,6 @@ func init() {
 }
 
 func Execute() error {
+	initializeCommands()
 	return rootCmd.Execute()
 }

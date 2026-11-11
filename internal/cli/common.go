@@ -8,9 +8,9 @@ import (
 	"os/signal"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/missdeer/notebooklm-client/internal/client"
 	"github.com/missdeer/notebooklm-client/internal/types"
+	"github.com/spf13/cobra"
 )
 
 func addTransportFlags(cmd *cobra.Command) {
@@ -41,10 +41,18 @@ func buildSource(cmd *cobra.Command) (types.SourceInput, error) {
 	mode, _ := cmd.Flags().GetString("research-mode")
 
 	count := 0
-	if u != "" { count++ }
-	if text != "" { count++ }
-	if file != "" { count++ }
-	if topic != "" { count++ }
+	if u != "" {
+		count++
+	}
+	if text != "" {
+		count++
+	}
+	if file != "" {
+		count++
+	}
+	if topic != "" {
+		count++
+	}
 
 	if count == 0 {
 		return types.SourceInput{}, fmt.Errorf("one of --url, --text, --file, or --topic is required")
@@ -103,11 +111,39 @@ func resolveProxy(cmd *cobra.Command) string {
 }
 
 func withClient(cmd *cobra.Command, fn func(context.Context, *client.NotebookClient) error) error {
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, cancel := signal.NotifyContext(cmd.Context(), os.Interrupt)
 	defer cancel()
 
 	transport, _ := cmd.Flags().GetString("transport")
 	sessionPath, _ := cmd.Flags().GetString("session-path")
+	profileDir, _ := cmd.Flags().GetString("profile")
+	if cmd.Annotations["cli-canonical"] != "" && sessionPath == "" {
+		state, err := readCLIState()
+		if err != nil {
+			return err
+		}
+		name := profileDir
+		if name == "" {
+			name, _ = state.Config["default_profile"].(string)
+		}
+		sessionPath, err = profileSessionPath(name)
+		if err != nil {
+			return err
+		}
+		profileDir = ""
+	}
+	if sessionPath == "" {
+		state, err := readCLIState()
+		if err != nil {
+			return err
+		}
+		if name, ok := state.Config["default_profile"].(string); ok && name != "" {
+			sessionPath, err = profileSessionPath(name)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	proxy := resolveProxy(cmd)
 
 	c := client.New()
@@ -115,6 +151,9 @@ func withClient(cmd *cobra.Command, fn func(context.Context, *client.NotebookCli
 		Transport:   client.TransportMode(transport),
 		SessionPath: sessionPath,
 		Proxy:       proxy,
+		ProfileDir:  profileDir,
+		ChromePath:  flagString(cmd, "chrome-path"),
+		Headless:    flagBool(cmd, "headless"),
 	}); err != nil {
 		return err
 	}

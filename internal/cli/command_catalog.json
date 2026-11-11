@@ -1,0 +1,6676 @@
+[
+  {
+    "path": "add drive",
+    "canonical": "source add",
+    "help": "Add a Google Drive source to notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "document_id",
+        "help": "Google Drive document ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Source title",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "type",
+        "help": "Drive doc type: doc, slides, sheets, pdf",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "doc"
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "wait",
+        "help": "Wait for source processing to complete",
+        "required": false,
+        "aliases": [],
+        "short": "w",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "wait-timeout",
+        "help": "Wait timeout in seconds",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "float",
+        "default": 600.0
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "add text",
+    "canonical": "source add",
+    "help": "Add text source to notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "text_arg",
+        "help": "Text content to add",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Source title",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "wait",
+        "help": "Wait for source processing to complete",
+        "required": false,
+        "aliases": [],
+        "short": "w",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "wait-timeout",
+        "help": "Wait timeout in seconds",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "float",
+        "default": 600.0
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "add url",
+    "canonical": "source add",
+    "help": "Add a URL source to notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "url_arg",
+        "help": "URL to add",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "wait",
+        "help": "Wait for source processing to complete",
+        "required": false,
+        "aliases": [],
+        "short": "w",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "wait-timeout",
+        "help": "Wait timeout in seconds",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "float",
+        "default": 600.0
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "alias delete",
+    "canonical": "alias delete",
+    "help": "Delete an alias.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "alias get",
+    "canonical": "alias get",
+    "help": "Get the value of an alias.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "alias list",
+    "canonical": "alias list",
+    "help": "List all aliases.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "alias set",
+    "canonical": "alias set",
+    "help": "Create or update an alias for an ID.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name (e.g. 'my-notebook')",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "value",
+        "help": "ID value (e.g. valid UUID)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "type",
+        "help": "Type: notebook, source, artifact, task (auto-detected if not specified)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use for detection",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "audio create",
+    "canonical": "audio create",
+    "help": "Create an audio overview (podcast) from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Overview format (deep_dive, brief, critique, debate)",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "deep_dive"
+      },
+      {
+        "name": "length",
+        "help": "Length (short, default, long)",
+        "required": false,
+        "aliases": [],
+        "short": "l",
+        "type": "string",
+        "default": "default"
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: NOTEBOOKLM_HL or en)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "auth refresh",
+    "canonical": "auth refresh",
+    "help": "Refresh NotebookLM authentication without an interactive sign-in.",
+    "args": [],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to refresh (default: the configured default profile).",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "http-only",
+        "help": "Refresh cookies and page tokens over HTTP, without launching a browser.",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "auth storage relocate",
+    "canonical": "auth storage relocate",
+    "help": "Relocate installation identity after moving the storage directory.",
+    "args": [],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "auth storage resolve",
+    "canonical": "auth storage resolve",
+    "help": "Resolve a credential storage conflict, clear stuck markers, or discard inaccessible credentials.",
+    "args": [
+      {
+        "name": "choice",
+        "help": "Storage mode to resolve to: 'file' or 'protected'",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to resolve (default: configured default profile)",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "discard-inaccessible",
+        "help": "Discard inaccessible ciphertext and reset to file mode without exporting",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "clear-marker",
+        "help": "Clear a stuck or corrupt operation marker",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "yes",
+        "help": "Confirm action without interactive prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "auth storage set",
+    "canonical": "auth storage set",
+    "help": "Set credential storage mode for one or more profiles.",
+    "args": [
+      {
+        "name": "mode",
+        "help": "Storage mode: 'file' or 'protected'",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to set (default: pick from a list in a terminal, else the default profile)",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "all",
+        "help": "Apply to every saved profile not already in this mode",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "auth storage status",
+    "canonical": "auth storage status",
+    "help": "Show current credential storage mode for a profile.",
+    "args": [],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to check (default: configured default profile)",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "batch add-source",
+    "canonical": "batch add-source",
+    "help": "Add the same source URL to multiple notebooks.",
+    "args": [
+      {
+        "name": "url",
+        "help": "URL to add as source",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebooks",
+        "help": "Comma-separated notebook names",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "tags",
+        "help": "Comma-separated tags",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "all",
+        "help": "Add to ALL notebooks",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "batch create",
+    "canonical": "batch create",
+    "help": "Create multiple notebooks at once.",
+    "args": [
+      {
+        "name": "titles",
+        "help": "Comma-separated notebook titles",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "batch delete",
+    "canonical": "batch delete",
+    "help": "Delete multiple notebooks. IRREVERSIBLE.",
+    "args": [],
+    "flags": [
+      {
+        "name": "notebooks",
+        "help": "Comma-separated notebook names",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "tags",
+        "help": "Comma-separated tags",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Confirm deletion",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "batch query",
+    "canonical": "batch query",
+    "help": "Query multiple notebooks with the same question.",
+    "args": [
+      {
+        "name": "query",
+        "help": "Question to ask across notebooks",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebooks",
+        "help": "Comma-separated notebook names",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "tags",
+        "help": "Comma-separated tags",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "all",
+        "help": "Query ALL notebooks",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "batch studio",
+    "canonical": "batch studio",
+    "help": "Generate studio artifacts across multiple notebooks.",
+    "args": [
+      {
+        "name": "artifact_type",
+        "help": "Type: audio, video, report, flashcards, etc.",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebooks",
+        "help": "Comma-separated notebook names",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "tags",
+        "help": "Comma-separated tags",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "all",
+        "help": "Generate for ALL notebooks",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "chat configure",
+    "canonical": "chat configure",
+    "help": "Configure how AI responds in notebook chat.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "goal",
+        "help": "Chat goal: default, learning_guide, or custom",
+        "required": false,
+        "aliases": [],
+        "short": "g",
+        "type": "string",
+        "default": "default"
+      },
+      {
+        "name": "prompt",
+        "help": "Custom prompt (required when goal=custom, max 10000 chars)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "response-length",
+        "help": "Response length: default, longer, or shorter",
+        "required": false,
+        "aliases": [],
+        "short": "r",
+        "type": "string",
+        "default": "default"
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chat start",
+    "canonical": "chat start",
+    "help": "Start interactive chat session with a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chats delete",
+    "canonical": "chats delete",
+    "help": "Permanently delete all chat history for a notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or title alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output raw JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chats export",
+    "canonical": "chats export",
+    "help": "Export a chat transcript to Markdown or JSON.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or title alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "conversation-id",
+        "help": "Conversation ID",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "format",
+        "help": "Export format: md or json",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "md"
+      },
+      {
+        "name": "output",
+        "help": "File path to save export",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chats get",
+    "canonical": "chats get",
+    "help": "Get full transcript of a chat session.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or title alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "conversation_id",
+        "help": "Conversation ID (defaults to latest)",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output raw JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chats list",
+    "canonical": "chats list",
+    "help": "List chat sessions for a notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or title alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "limit",
+        "help": "Max chat sessions to display",
+        "required": false,
+        "aliases": [],
+        "short": "l",
+        "type": "int",
+        "default": 20
+      },
+      {
+        "name": "json",
+        "help": "Output raw JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "chats to-note",
+    "canonical": "chats to-note",
+    "help": "Save a chat turn or full chat session as a Note in the notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or title alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "conversation_id",
+        "help": "Conversation ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "turn",
+        "help": "1-indexed turn to save (default: entire chat)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "int",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Note title",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "json",
+        "help": "Output raw JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "config get",
+    "canonical": "config get",
+    "help": "Get a specific configuration value.",
+    "args": [
+      {
+        "name": "key",
+        "help": "Configuration key (e.g. output.format)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "config set",
+    "canonical": "config set",
+    "help": "Set a configuration value.",
+    "args": [
+      {
+        "name": "key",
+        "help": "Configuration key (e.g. output.format)",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "value",
+        "help": "Value to set",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "config show",
+    "canonical": "config show",
+    "help": "Show current configuration.",
+    "args": [],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "configure chat",
+    "canonical": "chat configure",
+    "help": "Configure chat settings for a notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "goal",
+        "help": "Chat goal: default, learning_guide, or custom",
+        "required": false,
+        "aliases": [],
+        "short": "g",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "prompt",
+        "help": "Custom prompt (required when goal=custom, max 10000 chars)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "response-length",
+        "help": "Response length: default, longer, or shorter",
+        "required": false,
+        "aliases": [],
+        "short": "r",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "content source",
+    "canonical": "source content",
+    "help": "Get raw source content (no AI processing).",
+    "args": [
+      {
+        "name": "source",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "output",
+        "help": "Write content to file",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create audio",
+    "canonical": "audio create",
+    "help": "Create an audio overview.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Audio format (deep_dive/brief/critique/debate)",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "length",
+        "help": "Audio length (short/default/long)",
+        "required": false,
+        "aliases": [],
+        "short": "l",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (en, es, fr, de, ja)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create data-table",
+    "canonical": "data-table create",
+    "help": "Create a data table.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "description",
+        "help": "Description of the data table to create",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "language",
+        "help": "BCP-47 language code",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create flashcards",
+    "canonical": "flashcards create",
+    "help": "Create flashcards.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "difficulty",
+        "help": "Difficulty: easy, medium, hard",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create infographic",
+    "canonical": "infographic create",
+    "help": "Create an infographic.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "orientation",
+        "help": "Orientation: landscape, portrait, square",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "detail",
+        "help": "Detail level: concise, standard, detailed",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "style",
+        "help": "Visual style: auto_select, sketch_note, professional, bento_grid, editorial, instructional, bricks, clay, anime, kawaii, scientific",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create mindmap",
+    "canonical": "mindmap create",
+    "help": "Create a mind map.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Mind map title",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create notebook",
+    "canonical": "notebook create",
+    "help": "Create a new notebook.",
+    "args": [
+      {
+        "name": "title",
+        "help": "Notebook title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create quiz",
+    "canonical": "quiz create",
+    "help": "Create a quiz.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "count",
+        "help": "Number of questions",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "int",
+        "default": null
+      },
+      {
+        "name": "difficulty",
+        "help": "Difficulty 1-5 (1=easy, 5=hard)",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "int",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create report",
+    "canonical": "report create",
+    "help": "Create a report.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: 'Briefing Doc', 'Study Guide', 'Blog Post', 'Create Your Own', 'Interactive'",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "template",
+        "help": "Interactive report template (only used with --format Interactive)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "prompt",
+        "help": "Custom prompt (required for 'Create Your Own')",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create slides",
+    "canonical": "slides create",
+    "help": "Create a slide deck.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: detailed_deck, presenter_slides",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "length",
+        "help": "Length: short, default",
+        "required": false,
+        "aliases": [],
+        "short": "l",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "create video",
+    "canonical": "video create",
+    "help": "Create a video overview.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: explainer, brief, cinematic, short",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "style",
+        "help": "Visual style: auto_select, custom, classic, whiteboard, kawaii, anime, watercolor, retro_print, heritage, paper_craft",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "style-prompt",
+        "help": "Custom visual style description (implies --style custom unless another style is explicitly set)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "cross query",
+    "canonical": "cross query",
+    "help": "Query multiple notebooks and get aggregated answers.",
+    "args": [
+      {
+        "name": "query",
+        "help": "Question to ask across notebooks",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebooks",
+        "help": "Comma-separated notebook names or IDs",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "tags",
+        "help": "Comma-separated tags to select notebooks",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "all",
+        "help": "Query ALL notebooks (rate limits apply)",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "data-table create",
+    "canonical": "data-table create",
+    "help": "Create a data table from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "description",
+        "help": "Description of the data table to create",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: NOTEBOOKLM_HL or en)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "delete alias",
+    "canonical": "alias delete",
+    "help": "Delete an alias.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "delete artifact",
+    "canonical": "studio delete",
+    "help": "Delete a studio artifact permanently.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact",
+        "help": "Artifact ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "delete notebook",
+    "canonical": "notebook delete",
+    "help": "Delete a notebook permanently.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "delete source",
+    "canonical": "source delete",
+    "help": "Delete a source from notebook.",
+    "args": [
+      {
+        "name": "source",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "describe notebook",
+    "canonical": "notebook describe",
+    "help": "Get AI-generated notebook summary with suggested topics.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "describe source",
+    "canonical": "source describe",
+    "help": "Get AI-generated source summary with keywords.",
+    "args": [
+      {
+        "name": "source",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "doctor",
+    "canonical": "doctor",
+    "help": "Run diagnostics on your NotebookLM CLI installation.",
+    "args": [],
+    "flags": [
+      {
+        "name": "verbose",
+        "help": "Show additional diagnostic details",
+        "required": false,
+        "aliases": [],
+        "short": "v",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "doctor auth-replay",
+    "canonical": "doctor auth-replay",
+    "help": "Diagnose cookie replay vs browser-bound auth failures.",
+    "args": [],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to diagnose (defaults to configured profile)",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "no-cdp",
+        "help": "Skip the in-browser CDP fetch probe",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "timeout",
+        "help": "Timeout in seconds for each replay lane",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "float",
+        "default": 15.0
+      }
+    ]
+  },
+  {
+    "path": "download all",
+    "canonical": "download all",
+    "help": "Download all completed artifacts into per-notebook directories.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias (omit with --all-notebooks)",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output-dir",
+        "help": "Base directory; a subdirectory named after each notebook is created inside",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": "."
+      },
+      {
+        "name": "types",
+        "help": "Comma-separated artifact types (default: all). Example: video,slide_deck,mind_map,report",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "slide-format",
+        "help": "Slide deck format: pdf (default) or pptx",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "pdf"
+      },
+      {
+        "name": "interactive-format",
+        "help": "Quiz/flashcards format: json, markdown, or html",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "json"
+      },
+      {
+        "name": "all-notebooks",
+        "help": "Sweep every notebook in the account",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "skip-existing",
+        "help": "Skip artifacts whose file already exists (incremental re-runs)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "no-progress",
+        "help": "Disable download progress bars",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output result as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "download audio",
+    "canonical": "download audio",
+    "help": "Download Audio Overview.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_audio.m4a)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "no-progress",
+        "help": "Disable download progress bar",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "download data-table",
+    "canonical": "download data-table",
+    "help": "Download Data Table (CSV or XLSX).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_table.csv)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "download file",
+    "canonical": "download file",
+    "help": "Download a generic Studio file export.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_file.bin)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "download flashcards",
+    "canonical": "download flashcards",
+    "help": "Download Flashcards.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_flashcards.{ext})",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "format",
+        "help": "Output format: json, markdown, or html",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "json"
+      }
+    ]
+  },
+  {
+    "path": "download infographic",
+    "canonical": "download infographic",
+    "help": "Download Infographic (PNG).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_infographic.png)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "no-progress",
+        "help": "Disable download progress bar",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "download mind-map",
+    "canonical": "download mind-map",
+    "help": "Download Mind Map (JSON).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_mindmap.json)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID (note ID)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "download quiz",
+    "canonical": "download quiz",
+    "help": "Download Quiz.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_quiz.{ext})",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "format",
+        "help": "Output format: json, markdown, or html",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "json"
+      }
+    ]
+  },
+  {
+    "path": "download report",
+    "canonical": "download report",
+    "help": "Download Report (Markdown).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_report.md)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "download slide-deck",
+    "canonical": "download slide-deck",
+    "help": "Download Slide Deck (PDF or PPTX).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_slides.{ext})",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "no-progress",
+        "help": "Disable download progress bar",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "format",
+        "help": "File format: pdf (default) or pptx",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "pdf"
+      }
+    ]
+  },
+  {
+    "path": "download video",
+    "canonical": "download video",
+    "help": "Download Video Overview.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Output path (default: ./{notebook_id}_video.mp4)",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "id",
+        "help": "Specific artifact ID",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "no-progress",
+        "help": "Disable download progress bar",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "export artifact",
+    "canonical": "export artifact",
+    "help": "Export an artifact to Google Docs or Sheets.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID to export",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "type",
+        "help": "Export type: 'docs' or 'sheets'",
+        "required": true,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Title for the exported document",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "export to-docs",
+    "canonical": "export to-docs",
+    "help": "Export a Report artifact to Google Docs.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID to export (Report)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Title for the Google Doc",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "export to-sheets",
+    "canonical": "export to-sheets",
+    "help": "Export a Data Table artifact to Google Sheets.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID to export (Data Table)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Title for the Google Sheet",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "flashcards create",
+    "canonical": "flashcards create",
+    "help": "Create flashcards from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "difficulty",
+        "help": "Difficulty: easy, medium, hard",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": "medium"
+      },
+      {
+        "name": "focus",
+        "help": "Focus prompt to guide generation",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "get alias",
+    "canonical": "alias get",
+    "help": "Get alias value.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "get config",
+    "canonical": "config get",
+    "help": "Get configuration value.",
+    "args": [
+      {
+        "name": "key",
+        "help": "Configuration key (e.g. output.format)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "get notebook",
+    "canonical": "notebook get",
+    "help": "Get notebook details.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "get source",
+    "canonical": "source get",
+    "help": "Get source details.",
+    "args": [
+      {
+        "name": "source",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "infographic create",
+    "canonical": "infographic create",
+    "help": "Create an infographic from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "orientation",
+        "help": "Orientation: landscape, portrait, square",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": "landscape"
+      },
+      {
+        "name": "detail",
+        "help": "Detail level: concise, standard, detailed",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": "standard"
+      },
+      {
+        "name": "style",
+        "help": "Visual style: auto_select, sketch_note, professional, bento_grid, editorial, instructional, bricks, clay, anime, kawaii, scientific",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "auto_select"
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: NOTEBOOKLM_HL or en)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label auto",
+    "canonical": "label auto",
+    "help": "Auto-label sources using AI-generated thematic categories.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label create",
+    "canonical": "label create",
+    "help": "Create a new empty label manually.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "name",
+        "help": "Label display name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "emoji",
+        "help": "Optional emoji marker (e.g. 📊)",
+        "required": false,
+        "aliases": [],
+        "short": "e",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label delete",
+    "canonical": "label delete",
+    "help": "Delete a label permanently. Sources are NOT deleted.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "label_id",
+        "help": "Label UUID to delete",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Confirm deletion without prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label emoji",
+    "canonical": "label emoji",
+    "help": "Set or clear the emoji marker on a label.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "label_id",
+        "help": "Label UUID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "emoji",
+        "help": "Emoji character (use \"\" to clear)",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label list",
+    "canonical": "label list",
+    "help": "List current labels in a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output label IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label move",
+    "canonical": "label move",
+    "help": "Assign a source to a label.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "source_id",
+        "help": "Source UUID to assign",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "label_id",
+        "help": "Target label UUID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label rename",
+    "canonical": "label rename",
+    "help": "Rename an existing label.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "label_id",
+        "help": "Label UUID to rename",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "new_name",
+        "help": "New display name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "label reorganize",
+    "canonical": "label reorganize",
+    "help": "Force AI re-categorization of sources into new labels.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "unlabeled",
+        "help": "Only label sources not yet in any label",
+        "required": false,
+        "aliases": [],
+        "short": "u",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt (all-sources mode)",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "list aliases",
+    "canonical": "alias list",
+    "help": "List all aliases.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "list artifacts",
+    "canonical": "studio status",
+    "help": "List all studio artifacts.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all details",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "list notebooks",
+    "canonical": "notebook list",
+    "help": "List all notebooks.",
+    "args": [],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all columns",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "title",
+        "help": "Show ID: Title format",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "list sources",
+    "canonical": "source list",
+    "help": "List sources in a notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all columns",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "drive",
+        "help": "Show Drive sources with freshness status",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "skip-freshness",
+        "help": "Skip freshness checks (faster, use with --drive)",
+        "required": false,
+        "aliases": [],
+        "short": "S",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "url",
+        "help": "Output as ID: URL",
+        "required": false,
+        "aliases": [],
+        "short": "u",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "list stale-sources",
+    "canonical": "source stale",
+    "help": "List Drive sources that need syncing.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "login",
+    "canonical": "login",
+    "help": "Authenticate with NotebookLM.",
+    "args": [],
+    "flags": [
+      {
+        "name": "manual",
+        "help": "Manually provide cookies from a file",
+        "required": false,
+        "aliases": [],
+        "short": "m",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "check",
+        "help": "Only check if current auth is valid",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name (uses config default if not specified)",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "file",
+        "help": "Path to file containing cookies (for manual mode)",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "provider",
+        "help": "Auth provider: builtin (default) or openclaw",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "builtin"
+      },
+      {
+        "name": "cdp-url",
+        "help": "CDP endpoint URL for external provider mode",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "http://127.0.0.1:18800"
+      },
+      {
+        "name": "force",
+        "help": "Force overwrite even if profile has credentials for a different account",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "clear",
+        "help": "Delete the localized browser profile data before logging in, to switch Google accounts",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "wsl",
+        "help": "Launch Windows Chrome from WSL (fixes terminal corruption on WSL2)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "storage",
+        "help": "Where to keep the saved login for a NEW profile: 'protected' (OS keystore, recommended) or 'file'. Skips the question.",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "login profile delete",
+    "canonical": "login profile delete",
+    "help": "Delete a profile and its credentials.",
+    "args": [
+      {
+        "name": "profile",
+        "help": "Profile name to delete",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation prompt",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "login profile list",
+    "canonical": "login profile list",
+    "help": "List all authentication profiles.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "login profile rename",
+    "canonical": "login profile rename",
+    "help": "Rename an authentication profile.",
+    "args": [
+      {
+        "name": "old_name",
+        "help": "Current profile name",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "new_name",
+        "help": "New profile name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "login switch",
+    "canonical": "login switch",
+    "help": "Switch the default profile for all commands.",
+    "args": [
+      {
+        "name": "profile",
+        "help": "Profile name to switch to",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "mindmap create",
+    "canonical": "mindmap create",
+    "help": "Create a mind map from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "title",
+        "help": "Mind map title",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": "Mind Map"
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "note create",
+    "canonical": "note create",
+    "help": "Create a new note in a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "content",
+        "help": "Note content",
+        "required": true,
+        "aliases": [],
+        "short": "c",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Note title",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": "New Note"
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "note delete",
+    "canonical": "note delete",
+    "help": "Delete a note permanently.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "note_id",
+        "help": "Note ID to delete",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "note list",
+    "canonical": "note list",
+    "help": "List all notes in a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "note update",
+    "canonical": "note update",
+    "help": "Update a note's content or title.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "note_id",
+        "help": "Note ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "content",
+        "help": "New content",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "New title",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook create",
+    "canonical": "notebook create",
+    "help": "Create a new notebook.",
+    "args": [
+      {
+        "name": "title",
+        "help": "Notebook title",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook delete",
+    "canonical": "notebook delete",
+    "help": "Delete a notebook permanently.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook describe",
+    "canonical": "notebook describe",
+    "help": "Get AI-generated notebook summary with suggested topics.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook get",
+    "canonical": "notebook get",
+    "help": "Get notebook details.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook list",
+    "canonical": "notebook list",
+    "help": "List all notebooks.",
+    "args": [],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all columns",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "title",
+        "help": "Show ID: Title format",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "notebook query",
+    "canonical": "notebook query",
+    "help": "Chat with notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "question",
+        "help": "Question to ask",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "conversation-id",
+        "help": "Conversation ID for follow-up questions",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs to query (default: all)",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "timeout",
+        "help": "Query timeout in seconds (default: 120; source-heavy notebooks may need 180+)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "float",
+        "default": null
+      },
+      {
+        "name": "new-conversation",
+        "help": "Start a fresh conversation instead of reusing the notebook's chat",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "notebook rename",
+    "canonical": "notebook rename",
+    "help": "Rename a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "new_title",
+        "help": "New title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "pipeline create",
+    "canonical": "pipeline create",
+    "help": "Create a user-defined pipeline from a YAML file.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Pipeline name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "description",
+        "help": "Pipeline description",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "file",
+        "help": "YAML file with pipeline definition",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "pipeline list",
+    "canonical": "pipeline list",
+    "help": "List all available pipelines.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "pipeline run",
+    "canonical": "pipeline run",
+    "help": "Execute a pipeline on a notebook.",
+    "args": [
+      {
+        "name": "pipeline_name",
+        "help": "Pipeline name",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebook",
+        "help": "Target notebook UUID",
+        "required": true,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "input-url",
+        "help": "URL variable ($INPUT_URL)",
+        "required": false,
+        "aliases": [],
+        "short": "u",
+        "type": "string",
+        "default": ""
+      }
+    ]
+  },
+  {
+    "path": "query notebook",
+    "canonical": "notebook query",
+    "help": "Chat with notebook sources.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "question",
+        "help": "Question to ask",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "conversation-id",
+        "help": "Conversation ID for follow-up questions",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs to query (default: all)",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "timeout",
+        "help": "Query timeout in seconds (default: 120; source-heavy notebooks may need 180+)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "float",
+        "default": null
+      },
+      {
+        "name": "new-conversation",
+        "help": "Start a fresh conversation instead of reusing the notebook's chat",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "quiz create",
+    "canonical": "quiz create",
+    "help": "Create a quiz from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "count",
+        "help": "Number of questions",
+        "required": false,
+        "aliases": [],
+        "short": "c",
+        "type": "int",
+        "default": 2
+      },
+      {
+        "name": "difficulty",
+        "help": "Difficulty 1-5 (1=easy, 5=hard)",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "int",
+        "default": 2
+      },
+      {
+        "name": "focus",
+        "help": "Focus prompt to guide generation",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "rename notebook",
+    "canonical": "notebook rename",
+    "help": "Rename a notebook.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "title",
+        "help": "New title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "rename source",
+    "canonical": "source rename",
+    "help": "Rename a source.",
+    "args": [
+      {
+        "name": "source_id",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "title",
+        "help": "New title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID containing the source",
+        "required": true,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "rename studio",
+    "canonical": "studio rename",
+    "help": "Rename a studio artifact.",
+    "args": [
+      {
+        "name": "artifact",
+        "help": "Artifact ID to rename",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "title",
+        "help": "New title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "report create",
+    "canonical": "report create",
+    "help": "Create a report from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: 'Briefing Doc', 'Study Guide', 'Blog Post', 'Create Your Own', 'Interactive'",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "Briefing Doc"
+      },
+      {
+        "name": "template",
+        "help": "Interactive report template (only used with --format Interactive)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": "learning_overview"
+      },
+      {
+        "name": "prompt",
+        "help": "Custom prompt (required for 'Create Your Own')",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: NOTEBOOKLM_HL or en)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "report element create",
+    "canonical": "report element create",
+    "help": "Generate one embedded element of an interactive report.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Interactive report artifact ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "id",
+        "help": "Element ID (from 'nlm report elements')",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "type",
+        "help": "Element type selector: audio, video, mind_map, quiz, flashcards, slide_deck, infographic",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "prompt",
+        "help": "Custom steering prompt (default: the element card's description)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: the report's language)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "setting",
+        "help": "Element setting name=value (repeatable); see 'nlm report elements --json'",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "strings",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "report element create-batch",
+    "canonical": "report element create-batch",
+    "help": "Generate several report elements from one plan file (validated first).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Interactive report artifact ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "plan",
+        "help": "JSON file: [{\"element_id\", \"steering_prompt\"?, \"settings\"?}]",
+        "required": true,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 code (default: the report's language)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "report elements",
+    "canonical": "report elements",
+    "help": "List the embedded elements of an interactive report.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Interactive report artifact ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "wait",
+        "help": "Element id to wait on (repeatable)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "strings",
+        "default": null
+      },
+      {
+        "name": "timeout",
+        "help": "Max seconds to wait",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 600
+      },
+      {
+        "name": "content",
+        "help": "Include quiz/flashcards/mind map content",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "report get",
+    "canonical": "report get",
+    "help": "Read an interactive report (markdown content + metadata).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Interactive report artifact ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "output",
+        "help": "Write the markdown to a file instead of stdout",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "research import",
+    "canonical": "research import",
+    "help": "Import discovered sources from a completed research task.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "task_id",
+        "help": "Research task ID (auto-detects if not provided)",
+        "required": false,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "indices",
+        "help": "Comma-separated indices of sources to import (default: all)",
+        "required": false,
+        "aliases": [],
+        "short": "i",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "timeout",
+        "help": "Import timeout in seconds (default: 300)",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "float",
+        "default": 300.0
+      },
+      {
+        "name": "cited-only",
+        "help": "Import only sources cited by the research report (overrides --indices)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "research start",
+    "canonical": "research start",
+    "help": "Start a research task to find new sources.",
+    "args": [
+      {
+        "name": "query",
+        "help": "What to search for",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "source",
+        "help": "Where to search: web or drive",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": "web"
+      },
+      {
+        "name": "mode",
+        "help": "Research mode: fast (~30s, ~10 sources) or deep (~5min, ~40 sources, web only)",
+        "required": false,
+        "aliases": [],
+        "short": "m",
+        "type": "string",
+        "default": "fast"
+      },
+      {
+        "name": "notebook-id",
+        "help": "Add to existing notebook",
+        "required": false,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Title for new notebook",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "force",
+        "help": "Start new research even if one is already pending",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "auto-import",
+        "help": "Wait for completion and automatically import sources",
+        "required": false,
+        "aliases": [
+          "wait-and-import"
+        ],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "research status",
+    "canonical": "research status",
+    "help": "Check research task progress.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "task-id",
+        "help": "Specific task ID to check",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "compact",
+        "help": "Show compact or full details",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": true,
+        "negative": "full"
+      },
+      {
+        "name": "poll-interval",
+        "help": "Seconds between status checks",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 30
+      },
+      {
+        "name": "max-wait",
+        "help": "Maximum seconds to wait (0 for single check)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 300
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "set alias",
+    "canonical": "alias set",
+    "help": "Set an alias for an ID.",
+    "args": [
+      {
+        "name": "name",
+        "help": "Alias name (e.g. 'my-notebook')",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "value",
+        "help": "ID to alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "set config",
+    "canonical": "config set",
+    "help": "Set configuration value.",
+    "args": [
+      {
+        "name": "key",
+        "help": "Configuration key (e.g. output.format)",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "value",
+        "help": "Configuration value",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "share batch",
+    "canonical": "share batch",
+    "help": "Invite multiple collaborators at once.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "emails",
+        "help": "Comma-separated email addresses",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "role",
+        "help": "Role for all: viewer or editor",
+        "required": false,
+        "aliases": [],
+        "short": "r",
+        "type": "string",
+        "default": "viewer"
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "share invite",
+    "canonical": "share invite",
+    "help": "Invite a collaborator by email.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "email",
+        "help": "Email address to invite",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "role",
+        "help": "Role: viewer or editor",
+        "required": false,
+        "aliases": [],
+        "short": "r",
+        "type": "string",
+        "default": "viewer"
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "share private",
+    "canonical": "share private",
+    "help": "Disable public link access (restricted to collaborators only).",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "share public",
+    "canonical": "share public",
+    "help": "Enable public link access (anyone with link can view).",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "share status",
+    "canonical": "share status",
+    "help": "Show sharing status and collaborators.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "show aliases",
+    "canonical": "alias list",
+    "help": "Show all aliases.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "show config",
+    "canonical": "config show",
+    "help": "Show all configuration.",
+    "args": [],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      }
+    ]
+  },
+  {
+    "path": "slides create",
+    "canonical": "slides create",
+    "help": "Create a slide deck from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: detailed_deck, presenter_slides",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "detailed_deck"
+      },
+      {
+        "name": "length",
+        "help": "Length: short, default",
+        "required": false,
+        "aliases": [],
+        "short": "l",
+        "type": "string",
+        "default": "default"
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code (default: NOTEBOOKLM_HL or en)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "focus",
+        "help": "Optional focus topic",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "slides revise",
+    "canonical": "slides revise",
+    "help": "Revise individual slides in an existing slide deck.",
+    "args": [
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID of the slide deck to revise",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "slide",
+        "help": "Slide revision in format: SLIDE_NUM \"instruction\" (e.g., --slide 1 \"Make title larger\")",
+        "required": true,
+        "aliases": [],
+        "short": "",
+        "type": "strings",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source add",
+    "canonical": "source add",
+    "help": "Add a source to a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "url",
+        "help": "URL to add (repeatable for bulk)",
+        "required": false,
+        "aliases": [],
+        "short": "u",
+        "type": "strings",
+        "default": null
+      },
+      {
+        "name": "text",
+        "help": "Text content to add",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "drive",
+        "help": "Google Drive document ID",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "youtube",
+        "help": "YouTube URL (repeatable for bulk)",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "strings",
+        "default": null
+      },
+      {
+        "name": "file",
+        "help": "Local file to upload (PDF, etc.)",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Title for the source",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "type",
+        "help": "Drive doc type: doc, slides, sheets, pdf",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": "doc"
+      },
+      {
+        "name": "wait",
+        "help": "Wait for source processing to complete",
+        "required": false,
+        "aliases": [],
+        "short": "w",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "wait-timeout",
+        "help": "Max seconds to wait when --wait is set (default 600; raise for very long audio)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "float",
+        "default": 600.0
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source content",
+    "canonical": "source content",
+    "help": "Get raw source content (no AI processing).",
+    "args": [
+      {
+        "name": "source_id",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "output",
+        "help": "Write content to file",
+        "required": false,
+        "aliases": [],
+        "short": "o",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source delete",
+    "canonical": "source delete",
+    "help": "Delete source(s) permanently.",
+    "args": [
+      {
+        "name": "source_ids",
+        "help": "Source ID(s) to delete",
+        "required": true,
+        "many": true
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source describe",
+    "canonical": "source describe",
+    "help": "Get AI-generated source summary with keywords.",
+    "args": [
+      {
+        "name": "source_id",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source get",
+    "canonical": "source get",
+    "help": "Get source details.",
+    "args": [
+      {
+        "name": "source_id",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source list",
+    "canonical": "source list",
+    "help": "List sources in a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all columns",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "drive",
+        "help": "Show Drive sources with freshness status",
+        "required": false,
+        "aliases": [],
+        "short": "d",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "skip-freshness",
+        "help": "Skip freshness checks (faster, use with --drive)",
+        "required": false,
+        "aliases": [],
+        "short": "S",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "quiet",
+        "help": "Output IDs only",
+        "required": false,
+        "aliases": [],
+        "short": "q",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "url",
+        "help": "Output as ID: URL",
+        "required": false,
+        "aliases": [],
+        "short": "u",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source rename",
+    "canonical": "source rename",
+    "help": "Rename a source.",
+    "args": [
+      {
+        "name": "source_id",
+        "help": "Source ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "title",
+        "help": "New title",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID containing the source",
+        "required": true,
+        "aliases": [],
+        "short": "n",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source stale",
+    "canonical": "source stale",
+    "help": "List Drive sources that need syncing.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "source sync",
+    "canonical": "source sync",
+    "help": "Sync Drive sources with latest content.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs to sync (default: all stale)",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "stale sources",
+    "canonical": "source stale",
+    "help": "List Drive sources that need syncing.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "status artifacts",
+    "canonical": "studio status",
+    "help": "Check status of studio artifacts.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all details",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "status research",
+    "canonical": "research status",
+    "help": "Check status of research task.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "task-id",
+        "help": "Specific task ID to check",
+        "required": false,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "compact",
+        "help": "Show compact or full details",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": true,
+        "negative": "full"
+      },
+      {
+        "name": "poll-interval",
+        "help": "Seconds between status checks",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 30
+      },
+      {
+        "name": "max-wait",
+        "help": "Maximum seconds to wait (0 for single check)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 300
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "studio delete",
+    "canonical": "studio delete",
+    "help": "Delete a studio artifact permanently.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID to delete",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "studio rename",
+    "canonical": "studio rename",
+    "help": "Rename a studio artifact.",
+    "args": [
+      {
+        "name": "artifact_id",
+        "help": "Artifact ID to rename",
+        "required": true,
+        "many": false
+      },
+      {
+        "name": "new_title",
+        "help": "New title for the artifact",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "studio status",
+    "canonical": "studio status",
+    "help": "List all studio artifacts and their status (including mind maps).",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all details",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "artifact-id",
+        "help": "Return only one artifact",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "limit",
+        "help": "Maximum artifacts to return (1-100)",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": null
+      },
+      {
+        "name": "offset",
+        "help": "Artifacts to skip",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "int",
+        "default": 0
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "sync sources",
+    "canonical": "source sync",
+    "help": "Sync Drive sources with latest content.",
+    "args": [
+      {
+        "name": "notebook",
+        "help": "Notebook ID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs to sync (default: all stale)",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "tag add",
+    "canonical": "tag add",
+    "help": "Add tags to a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook UUID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "tags",
+        "help": "Comma-separated tags (e.g. 'ai,research,llm')",
+        "required": true,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "title",
+        "help": "Notebook title for display",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      }
+    ]
+  },
+  {
+    "path": "tag list",
+    "canonical": "tag list",
+    "help": "List all tagged notebooks.",
+    "args": [],
+    "flags": []
+  },
+  {
+    "path": "tag remove",
+    "canonical": "tag remove",
+    "help": "Remove tags from a notebook.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook UUID or alias",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "tags",
+        "help": "Comma-separated tags to remove",
+        "required": true,
+        "aliases": [],
+        "short": "t",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "tag select",
+    "canonical": "tag select",
+    "help": "Find notebooks relevant to a query using tags.",
+    "args": [
+      {
+        "name": "query",
+        "help": "Query to match against tags",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": []
+  },
+  {
+    "path": "usage",
+    "canonical": "usage",
+    "help": "Show how much of your plan's usage allowance is left.",
+    "args": [],
+    "flags": [
+      {
+        "name": "json",
+        "help": "Output raw JSON",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile name",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "video create",
+    "canonical": "video create",
+    "help": "Create a video overview from notebook sources.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "format",
+        "help": "Format: explainer, brief, cinematic, short",
+        "required": false,
+        "aliases": [],
+        "short": "f",
+        "type": "string",
+        "default": "explainer"
+      },
+      {
+        "name": "style",
+        "help": "Visual style: auto_select, custom, classic, whiteboard, kawaii, anime, watercolor, retro_print, heritage, paper_craft",
+        "required": false,
+        "aliases": [],
+        "short": "s",
+        "type": "string",
+        "default": "auto_select"
+      },
+      {
+        "name": "style-prompt",
+        "help": "Custom visual style description. For explainer/brief: implies --style custom. For cinematic/short: mapped to --focus (custom_instructions).",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "language",
+        "help": "BCP-47 language code. Short format uses best-effort prompt steering.",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "focus",
+        "help": "Focus topic or creative direction. For cinematic/short formats, this is the full steering prompt (visual style, audience, narrative).",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "source-ids",
+        "help": "Comma-separated source IDs",
+        "required": false,
+        "aliases": [],
+        "short": "",
+        "type": "string",
+        "default": null
+      },
+      {
+        "name": "confirm",
+        "help": "Skip confirmation",
+        "required": false,
+        "aliases": [],
+        "short": "y",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  },
+  {
+    "path": "video list",
+    "canonical": "video list",
+    "help": "List video artifacts and their status.",
+    "args": [
+      {
+        "name": "notebook_id",
+        "help": "Notebook ID",
+        "required": true,
+        "many": false
+      }
+    ],
+    "flags": [
+      {
+        "name": "full",
+        "help": "Show all details",
+        "required": false,
+        "aliases": [],
+        "short": "a",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "json",
+        "help": "Output as JSON",
+        "required": false,
+        "aliases": [],
+        "short": "j",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "profile",
+        "help": "Profile to use",
+        "required": false,
+        "aliases": [],
+        "short": "p",
+        "type": "string",
+        "default": null
+      }
+    ]
+  }
+]
