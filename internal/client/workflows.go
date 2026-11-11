@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/missdeer/notebooklm-client/internal/download"
@@ -187,7 +188,7 @@ func (c *NotebookClient) RunAudioOverview(ctx context.Context, opts types.AudioO
 			Language:     string(opts.Language),
 			Instructions: opts.Instructions,
 			Format:       opts.Format,
-			Length:        opts.Length,
+			Length:       opts.Length,
 		})
 	if err != nil {
 		return nil, err
@@ -393,19 +394,42 @@ func (c *NotebookClient) RunInfographic(ctx context.Context, opts types.Infograp
 }
 
 func (c *NotebookClient) RunSlideDeck(ctx context.Context, opts types.SlideDeckOptions, onProgress ProgressFn) (*types.SlideDeckResult, error) {
+	if err := validateSlideDeckInput(opts); err != nil {
+		return nil, err
+	}
 	if err := c.EnsureConnected(); err != nil {
 		return nil, err
 	}
-	progress(onProgress, types.StatusCreatingNotebook, "Creating notebook...")
-	notebookID, err := c.CreateNotebook(ctx)
-	if err != nil {
-		return nil, err
+	notebookID := strings.TrimSpace(opts.NotebookID)
+	sourceIDs := opts.SourceIDs
+	if notebookID != "" {
+		if len(sourceIDs) == 0 {
+			_, sources, err := c.GetNotebookDetail(ctx, notebookID)
+			if err != nil {
+				return nil, fmt.Errorf("get notebook sources: %w", err)
+			}
+			for _, source := range sources {
+				if source.ID != "" {
+					sourceIDs = append(sourceIDs, source.ID)
+				}
+			}
+		}
+		if len(sourceIDs) == 0 {
+			return nil, fmt.Errorf("no sources found in notebook; add sources before generating slides")
+		}
+	} else {
+		progress(onProgress, types.StatusCreatingNotebook, "Creating notebook...")
+		var err error
+		notebookID, err = c.CreateNotebook(ctx)
+		if err != nil {
+			return nil, err
+		}
+		sourceIDs, err = addSourceFromInput(ctx, c, notebookID, opts.Source)
+		if err != nil {
+			return nil, err
+		}
+		pollSourcesReady(ctx, c, notebookID, 120*time.Second)
 	}
-	sourceIDs, err := addSourceFromInput(ctx, c, notebookID, opts.Source)
-	if err != nil {
-		return nil, err
-	}
-	pollSourcesReady(ctx, c, notebookID, 120*time.Second)
 
 	artifactID, _, err := c.GenerateArtifact(ctx, notebookID, sourceIDs,
 		types.SlideDeckArtifactOptions{Instructions: opts.Instructions, Language: opts.Language, Format: opts.Format, Length: opts.Length})
@@ -422,6 +446,27 @@ func (c *NotebookClient) RunSlideDeck(ctx context.Context, opts types.SlideDeckO
 	}
 	progress(onProgress, types.StatusCompleted, "Slide deck complete!")
 	return &types.SlideDeckResult{PptxPath: pptx, PdfPath: pdf, NotebookURL: rpc.BaseURL + "/notebook/" + notebookID}, nil
+}
+
+func validateSlideDeckInput(opts types.SlideDeckOptions) error {
+	if strings.TrimSpace(opts.NotebookID) != "" {
+		if opts.Source != (types.SourceInput{}) {
+			return fmt.Errorf("notebook ID cannot be combined with new source input")
+		}
+	} else {
+		if len(opts.SourceIDs) > 0 {
+			return fmt.Errorf("source IDs require a notebook ID")
+		}
+		if opts.Source.Type == "" {
+			return fmt.Errorf("a notebook ID or new source input is required")
+		}
+	}
+	for _, id := range opts.SourceIDs {
+		if strings.TrimSpace(id) == "" {
+			return fmt.Errorf("source IDs must not be empty")
+		}
+	}
+	return nil
 }
 
 func (c *NotebookClient) RunDataTable(ctx context.Context, opts types.DataTableOptions, onProgress ProgressFn) (*types.DataTableResult, error) {

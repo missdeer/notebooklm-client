@@ -393,6 +393,8 @@ type InfographicOptions struct {
 
 type SlideDeckOptions struct {
 	Source       SourceInput
+	NotebookID   string   // Reuse an existing notebook instead of creating one.
+	SourceIDs    []string // Existing sources; empty means all sources in NotebookID.
 	OutputDir    string
 	Instructions string
 	Language     string

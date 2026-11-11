@@ -153,6 +153,19 @@ npx @missdeer/notebooklm list
 npx @missdeer/notebooklm list --transport browser
 ```
 
+### 使用已有笔记本生成幻灯片
+
+```bash
+# 使用已有笔记本的全部源
+notebooklm slides --notebook-id <notebook-id> -o ./output
+
+# 只使用指定的源（可先用 source list 查看 ID）
+notebooklm source list <notebook-id>
+notebooklm slides --notebook-id <notebook-id> --source-ids "source-id-1,source-id-2" -o ./output --language zh
+```
+
+生成结果保存在原笔记本中，并自动等待、下载。`--notebook-id` 不能与 `--url`、`--text`、`--file`、`--topic` 混用；`--source-ids` 必须配合 `--notebook-id`。不指定已有笔记本时，仍使用原有的新建笔记本流程。
+
 ### 下载已有 Studio 产物
 
 ```bash

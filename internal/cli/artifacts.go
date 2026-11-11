@@ -165,33 +165,6 @@ var infographicCmd = &cobra.Command{
 	},
 }
 
-var slidesCmd = &cobra.Command{
-	Use:   "slides",
-	Short: "Generate a slide deck from source material",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return withClient(cmd, func(ctx context.Context, c *client.NotebookClient) error {
-			source, err := buildSource(cmd)
-			if err != nil { return err }
-			outputDir, _ := cmd.Flags().GetString("output")
-			if outputDir == "" { outputDir = "." }
-			instructions, _ := cmd.Flags().GetString("instructions")
-			language, _ := cmd.Flags().GetString("language")
-			format, _ := cmd.Flags().GetString("format")
-			length, _ := cmd.Flags().GetString("length")
-
-			result, err := c.RunSlideDeck(ctx, types.SlideDeckOptions{
-				Source: source, OutputDir: outputDir,
-				Instructions: instructions, Language: language,
-				Format: types.SlideDeckFormat(format), Length: types.SlideDeckLength(length),
-			}, progressLogger)
-			if err != nil { return err }
-			fmt.Println(result.PptxPath)
-			fmt.Fprintln(os.Stderr, "Notebook:", result.NotebookURL)
-			return nil
-		})
-	},
-}
-
 var dataTableCmd = &cobra.Command{
 	Use:   "data-table",
 	Short: "Generate a data table from source material",
@@ -235,6 +208,4 @@ func init() {
 	infographicCmd.Flags().String("orientation", "", "Orientation: landscape, portrait, square")
 	infographicCmd.Flags().String("detail", "", "Detail: concise, standard, detailed")
 	infographicCmd.Flags().String("style", "", "Style: sketch_note, professional, bento_grid")
-	slidesCmd.Flags().String("format", "", "Slide format: detailed, presenter")
-	slidesCmd.Flags().String("length", "", "Slide length: default, short")
 }
