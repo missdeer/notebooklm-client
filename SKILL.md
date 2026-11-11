@@ -1,5 +1,5 @@
 ---
-name: notecraft
+name: notebooklm
 description: "Google NotebookLM automation. Create notebooks, add sources, generate podcasts/videos/slides/flashcards, chat, deep research. Activates on intent like create a podcast, research topic, summarize URL."
 user-invocable: true
 allowed-tools: Bash, Read, Write
