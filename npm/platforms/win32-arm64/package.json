@@ -1,7 +1,7 @@
 {
   "name": "@notebooklm-client/notebooklm-win32-arm64",
   "version": "0.1.1",
-  "description": "Platform-specific binary for notebooklm (Windows ARM64)",
+  "description": "Platform-specific binary for the Gemini Notebook CLI (Windows ARM64)",
   "license": "GPL-3.0-only OR LicenseRef-Commercial",
   "repository": {
     "type": "git",

@@ -61,7 +61,7 @@ func DownloadFileHTTP(ctx context.Context, deps Deps, downloadURL, outputDir, fi
 		} else if len(via) >= 10 {
 			return fmt.Errorf("stopped after 10 redirects")
 		}
-		// Keep the originating NotebookLM page, not an intermediate signed CDN URL.
+		// Keep the originating Gemini Notebook page, not an intermediate signed CDN URL.
 		req.Header.Set("Referer", rpc.SessionBaseURL(deps.Session.BaseHost)+"/")
 		return nil
 	}
@@ -84,7 +84,7 @@ func downloadCookieJar(sess types.NotebookRpcSession) http.CookieJar {
 		cookies = session.InferCookieJar(sess.Cookies)
 	}
 	for _, c := range cookies {
-		// NotebookLM's OSID cookies can cause ServiceLogin redirects on CDN hosts.
+		// Gemini Notebook's OSID cookies can cause ServiceLogin redirects on CDN hosts.
 		if c.Name == "OSID" || c.Name == "__Secure-OSID" {
 			continue
 		}
@@ -100,7 +100,7 @@ func downloadCookieJar(sess types.NotebookRpcSession) http.CookieJar {
 			cookie.Expires = *c.Expires
 		}
 		jar.SetCookies(&url.URL{Scheme: "https", Host: host, Path: "/"}, []*http.Cookie{cookie})
-		// NotebookLM artifact URLs require Google auth on this separate CDN domain.
+		// Gemini Notebook artifact URLs require Google auth on this separate CDN domain.
 		// Mirror the Python client's explicit domain mapping, excluding OSID above.
 		if c.Domain == ".google.com" {
 			cdnCookie := *cookie

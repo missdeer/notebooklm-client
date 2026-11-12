@@ -1,6 +1,6 @@
 # @notebooklm-client/notebooklm-win32-x64
 
-Platform-specific binary for [notebooklm](https://github.com/missdeer/notebooklm-client) (Windows x64).
+Platform-specific binary for the [Gemini Notebook CLI](https://github.com/missdeer/notebooklm-client) (Windows x64).
 
 ## Overview
 
@@ -23,7 +23,7 @@ This project is dual-licensed:
 - **Non-Commercial / Personal Use**: GNU General Public License v3.0
 - **Commercial / Workplace Use**: Commercial License Required
 
-See the main [notebooklm repository](https://github.com/missdeer/notebooklm-client) for full license details.
+See the main [Gemini Notebook CLI repository](https://github.com/missdeer/notebooklm-client) for full license details.
 
 ## Author
 

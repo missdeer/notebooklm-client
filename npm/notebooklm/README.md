@@ -1,6 +1,8 @@
-# notebooklm
+# Gemini Notebook CLI
 
-CLI client for Google NotebookLM — programmatically create notebooks, add sources, generate artifacts (audio podcasts, reports, slides, quizzes, videos, infographics, and more), and download results.
+CLI client for Google Gemini Notebook — programmatically create notebooks, add sources, generate artifacts (audio podcasts, reports, slides, quizzes, videos, infographics, and more), and download results.
+
+The command remains `notebooklm`, and the npm package remains `@missdeer/notebooklm` for compatibility with existing installations and scripts.
 
 ## Installation
 

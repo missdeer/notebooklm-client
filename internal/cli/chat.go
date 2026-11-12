@@ -112,7 +112,7 @@ func manageChats(ctx context.Context, c *client.NotebookClient, in commandInput,
 	}
 	var text strings.Builder
 	for _, t := range turns {
-		fmt.Fprintf(&text, "## Turn %d\n\n**User:** %s\n\n**NotebookLM:** %s\n\n", t.Turn, t.Query, t.Answer)
+		fmt.Fprintf(&text, "## Turn %d\n\n**User:** %s\n\n**Gemini Notebook:** %s\n\n", t.Turn, t.Query, t.Answer)
 	}
 	if action == "to-note" {
 		id, err := c.CreateNote(ctx, nb, in.val("title"), text.String())

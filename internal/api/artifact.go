@@ -130,7 +130,7 @@ func ExportArtifact(ctx context.Context, call RpcCaller, notebookID, artifactID,
 		code = 2
 	}
 	if title == "" {
-		title = "NotebookLM Export"
+		title = "Gemini Notebook Export"
 	}
 	raw, err := call(ctx, rpc.ExportArtifact,
 		[]any{nil, artifactID, nil, title, code},

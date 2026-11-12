@@ -1,14 +1,16 @@
 ---
 name: notebooklm
-description: "Use the Go notebooklm CLI to manage Google NotebookLM notebooks and sources, query and export chats, generate and download Studio artifacts, run Web or Drive research, check usage, and automate batches or pipelines. Applies to NotebookLM tasks such as podcasts, study materials, interactive reports, and source-based analysis."
+description: "Use the Go notebooklm CLI to manage Google Gemini Notebook notebooks and sources, query and export chats, generate and download Studio artifacts, run Web or Drive research, check usage, and automate batches or pipelines. Applies to Gemini Notebook tasks such as podcasts, study materials, interactive reports, and source-based analysis."
 user-invocable: true
 allowed-tools: Bash, Read, Write
 argument-hint: "[notebook|source|chat|research|audio|report|download|batch] [args...]"
 ---
 
-# NotebookLM
+# Gemini Notebook
 
-Use the standalone Go `notebooklm` CLI for Google NotebookLM tasks. The executable must be on PATH; installing this skill installs instructions and references, not the CLI binary. Inspect `notebooklm <command> --help` before supplying unfamiliar arguments. `notebooklm --ai` prints the command schema.
+Use the standalone Go `notebooklm` CLI for Google Gemini Notebook tasks. The executable must be on PATH; installing this skill installs instructions and references, not the CLI binary. Inspect `notebooklm <command> --help` before supplying unfamiliar arguments. `notebooklm --ai` prints the command schema.
+
+The product is Gemini Notebook; the skill name and executable remain `notebooklm`. Existing `NOTEBOOKLM_*` environment variables and `~/.notebooklm` configuration paths remain valid.
 
 ## Start and select the account
 
@@ -43,7 +45,7 @@ Read only the files needed for the current task. Follow a workflow across refere
 
 ## Validate file uploads
 
-Supported local upload extensions, verified on 2026-11-12 against Google's [source types and limitations](https://support.google.com/notebooklm/answer/16215270?hl=en):
+Supported local upload extensions, verified on 2026-11-12 against Google's [source types and limitations](https://support.google.com/gemininotebook/answer/16215270?hl=en):
 
 | Category | Allowed extensions (case-insensitive) |
 | --- | --- |

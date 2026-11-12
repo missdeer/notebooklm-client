@@ -11,7 +11,7 @@ import (
 
 // CookieHeaderForURL applies browser domain, path, secure and expiry rules.
 // The full export also contains accounts.google.com cookies; sending those to
-// NotebookLM can trigger Google's CookieMismatch redirect even after login.
+// Gemini Notebook can trigger Google's CookieMismatch redirect even after login.
 func CookieHeaderForURL(sess types.NotebookRpcSession, rawURL string) string {
 	if len(sess.CookieJar) == 0 {
 		return sess.Cookies

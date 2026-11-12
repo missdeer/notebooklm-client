@@ -34,7 +34,7 @@ appears in multiple sources, the version with the most recent timestamp wins
 (Firefox lastAccessed / Safari creation date).
 
 After extracting google.com-family cookies, the command immediately contacts
-NotebookLM using those cookies to derive the short-lived tokens (at/bl/fsid),
+Gemini Notebook using those cookies to derive the short-lived tokens (at/bl/fsid),
 then writes a complete session.json.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -92,7 +92,7 @@ then writes a complete session.json.`,
 			UserAgent: userAgent,
 		}
 
-		fmt.Fprintln(os.Stderr, "Bootstrapping tokens via NotebookLM dashboard...")
+		fmt.Fprintln(os.Stderr, "Bootstrapping tokens via Gemini Notebook dashboard...")
 		proxy := resolveProxy(cmd)
 		httpClient := transport.NewProxyHTTPClient(proxy)
 		refreshed, err := session.RefreshTokens(ctx, sess, httpClient, "")
@@ -242,7 +242,7 @@ func init() {
 	importCookiesCmd.Flags().String("profile", "", "Browser profile directory (firefox) or cookies file (safari); auto-detected if omitted")
 	importCookiesCmd.Flags().String("user-agent", "", "User-Agent to store in session (defaults to a recent Chrome UA)")
 	// Proxy flags mirror those on addTransportFlags so that RefreshTokens can
-	// route through a user-supplied proxy when NotebookLM is not directly
+	// route through a user-supplied proxy when Gemini Notebook is not directly
 	// reachable.
 	importCookiesCmd.Flags().String("proxy", "", "Proxy URL")
 	importCookiesCmd.Flags().String("socks5-proxy", "", "SOCKS5 proxy address (e.g. 127.0.0.1:1080)")

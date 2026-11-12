@@ -130,7 +130,7 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 	// gets 302'd to accounts.google.com/CookieMismatch even with valid cookies.
 	proxyClient := transport.NewUTLSHTTPClient(opts.Proxy)
 	onSessionExpired := func(ctx context.Context) (*types.NotebookRpcSession, error) {
-		log.Println("NotebookLM: Token expired, auto-refreshing...")
+		log.Println("Gemini Notebook: Token expired, auto-refreshing...")
 		refreshed, err := refreshHeadlessSession(ctx, *sess, proxyClient, sessionPath)
 		if err != nil {
 			return nil, err
@@ -155,7 +155,7 @@ func (c *NotebookClient) connectHeadless(ctx context.Context, opts ConnectOption
 	if len(blPreview) > 40 {
 		blPreview = blPreview[:40]
 	}
-	log.Printf("NotebookLM: Connected via utls (bl=%s...)", blPreview)
+	log.Printf("Gemini Notebook: Connected via utls (bl=%s...)", blPreview)
 	return nil
 }
 
@@ -170,7 +170,7 @@ func (c *NotebookClient) Disconnect() error {
 
 func (c *NotebookClient) EnsureConnected() error {
 	if c.transport == nil {
-		return types.NewSessionError("NotebookLM client not connected", nil)
+		return types.NewSessionError("Gemini Notebook client not connected", nil)
 	}
 	return nil
 }
@@ -343,7 +343,7 @@ func (c *NotebookClient) SelectChatConversation(notebookID, conversationID strin
 }
 
 // ensureChatThread resolves the notebook's default chat thread before sending.
-// NotebookLM auto-allocates one default thread per notebook on creation, so
+// Gemini Notebook auto-allocates one default thread per notebook on creation, so
 // hPTbtc should succeed. Empty result is best-effort — fall back to letting
 // the server allocate a thread on first chat (matches pre-fix behaviour).
 func (c *NotebookClient) ensureChatThread(ctx context.Context, notebookID string) (*chatState, error) {

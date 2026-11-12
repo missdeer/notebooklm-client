@@ -1,6 +1,6 @@
 # Go CLI
 
-The Go executable provides notebook, source, chat, artifact, research, account and automation commands.
+The Go executable provides notebook, source, chat, artifact, research, account and automation commands for Google Gemini Notebook. The command remains `notebooklm` for compatibility.
 
 The embedded catalog registers 150 executable CLI routes, including verb-first alternatives. Python is only used by the maintenance script that regenerates the catalog, never by the Go executable.
 

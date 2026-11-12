@@ -88,7 +88,8 @@ def walk(module, app, prefix):
 walk('main', 'app', '')
 commands = [c for c in commands if not c['canonical'].startswith(('setup ', 'skill '))]
 for c in commands:
-    c['help'] = c['help'].replace('Gemini Notebook MCP installation', 'NotebookLM CLI installation')
+    c['help'] = c['help'].replace('NotebookLM', 'Gemini Notebook')
+    c['help'] = c['help'].replace('Gemini Notebook MCP installation', 'Gemini Notebook CLI installation')
     c['flags'] = [f for f in c['flags'] if f['name'] != 'mcp-compatible']
     for f in c['flags']:
         if '/--' in f['name']:

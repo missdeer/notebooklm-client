@@ -38,7 +38,7 @@ func extractUserMessage(raw string) string {
 	if strings.Contains(raw, "[[null,[[2]]]]") {
 		return "Rate limited — try again later"
 	}
-	return "Server error: operation rejected by NotebookLM"
+	return "Server error: operation rejected by Gemini Notebook"
 }
 
 func NewSessionError(msg string, cause error) *SessionError {

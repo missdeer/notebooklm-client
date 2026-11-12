@@ -20,7 +20,7 @@ func CreateNotebook(ctx context.Context, call RpcCaller) (notebookID, threadID s
 }
 
 // ListChatThreads returns chat thread IDs bound to a notebook.
-// NotebookLM auto-allocates one default thread per notebook on creation; the
+// Gemini Notebook auto-allocates one default thread per notebook on creation; the
 // web UI uses that thread for every chat so messages persist in the chat panel.
 func ListChatThreads(ctx context.Context, call RpcCaller, notebookID string) ([]string, error) {
 	raw, err := call(ctx, rpc.ListChatThreads,

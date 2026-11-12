@@ -105,7 +105,7 @@ func pollSourcesReady(ctx context.Context, c *NotebookClient, notebookID string,
 			}
 			if readyCount >= threshold {
 				if readyCount < len(sources) {
-					log.Printf("NotebookLM: Sources ready %d/%d (threshold met)", readyCount, len(sources))
+					log.Printf("Gemini Notebook: Sources ready %d/%d (threshold met)", readyCount, len(sources))
 				}
 				return
 			}
@@ -114,7 +114,7 @@ func pollSourcesReady(ctx context.Context, c *NotebookClient, notebookID string,
 		delay := int(math.Min(float64(3000+pollCount*1500), 15000))
 		util.HumanSleep(ctx, delay)
 	}
-	log.Println("NotebookLM: Source processing may not have completed within timeout")
+	log.Println("Gemini Notebook: Source processing may not have completed within timeout")
 }
 
 func pollArtifactReady(ctx context.Context, c *NotebookClient, notebookID, artifactID string, timeout time.Duration) (*types.ArtifactInfo, error) {

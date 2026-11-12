@@ -9,7 +9,7 @@ var homeDir string
 
 var rootCmd = &cobra.Command{
 	Use:   "notebooklm",
-	Short: "NotebookLM CLI — generate podcasts, flashcards, reports via Google NotebookLM",
+	Short: "Gemini Notebook CLI — generate podcasts, flashcards, reports",
 }
 
 func init() {

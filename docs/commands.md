@@ -16,7 +16,7 @@ Available on all commands:
 
 ### Transport Flags
 
-Applied to commands that connect to NotebookLM (most commands).
+Applied to commands that connect to Gemini Notebook (most commands).
 
 | Flag | Description | Default |
 |---|---|---|

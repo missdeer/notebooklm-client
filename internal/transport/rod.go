@@ -131,7 +131,7 @@ func (t *RodTransport) Init(ctx context.Context) (initErr error) {
 	}
 	if bin != "" {
 		l = l.Bin(bin)
-		log.Printf("NotebookLM: Using browser: %s", bin)
+		log.Printf("Gemini Notebook: Using browser: %s", bin)
 	}
 
 	profileDir := t.opts.ProfileDir
@@ -183,7 +183,7 @@ func (t *RodTransport) Init(ctx context.Context) (initErr error) {
 	}
 
 	if isFirstRun {
-		log.Println("NotebookLM: First run — please log in to your Google account.")
+		log.Println("Gemini Notebook: First run — please log in to your Google account.")
 	}
 
 	// Login can redirect to either consumer host. Do not require a particular
@@ -220,7 +220,7 @@ func (t *RodTransport) Init(ctx context.Context) (initErr error) {
 	t.browser = browser
 	t.page = page
 	t.session = sess
-	log.Printf("NotebookLM: Connected via browser (rod)")
+	log.Printf("Gemini Notebook: Connected via browser (rod)")
 	return nil
 }
 
@@ -342,7 +342,7 @@ func (t *RodTransport) captureSession(ctx context.Context, page *rod.Page, timeo
 		return err
 	}
 	if tokens.AT == "" {
-		return types.NewSessionError("failed to extract authenticated NotebookLM tokens", nil)
+		return types.NewSessionError("failed to extract authenticated Gemini Notebook tokens", nil)
 	}
 	sess, err := t.extractSession(page, tokens)
 	if err != nil {
@@ -449,7 +449,7 @@ func reconnectLoginPage(page *rod.Page) (*rod.Page, error) {
 	if err != nil {
 		return page, fmt.Errorf("reconnect login tab (keep it open until login completes): %w", err)
 	}
-	log.Println("NotebookLM: Reconnected login tab; waiting for Google sign-in...")
+	log.Println("Gemini Notebook: Reconnected login tab; waiting for Google sign-in...")
 	return reconnected, nil
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "@notebooklm-client/notebooklm-darwin-universal",
   "version": "0.1.1",
-  "description": "Platform-specific binary for notebooklm (macOS Universal)",
+  "description": "Platform-specific binary for the Gemini Notebook CLI (macOS Universal)",
   "license": "GPL-3.0-only OR LicenseRef-Commercial",
   "repository": {
     "type": "git",

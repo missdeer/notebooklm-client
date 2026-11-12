@@ -65,7 +65,7 @@ func PollResearchResults(ctx context.Context, call RpcCaller, notebookID string,
 		}
 		parsed := parser.ParseResearchResults(raw)
 		if parsed.Status >= 2 {
-			log.Printf("NotebookLM: Research completed — %d sources", len(parsed.Results))
+			log.Printf("Gemini Notebook: Research completed — %d sources", len(parsed.Results))
 			return parsed.Results, parsed.Report, nil
 		}
 		select {
@@ -74,7 +74,7 @@ func PollResearchResults(ctx context.Context, call RpcCaller, notebookID string,
 		case <-time.After(5 * time.Second):
 		}
 	}
-	log.Println("NotebookLM: Research poll timed out")
+	log.Println("Gemini Notebook: Research poll timed out")
 	return nil, "", nil
 }
 
@@ -95,6 +95,6 @@ func ImportResearch(ctx context.Context, call RpcCaller, notebookID, researchID 
 	if err != nil {
 		return fmt.Errorf("import research: %w", err)
 	}
-	log.Printf("NotebookLM: Imported %d research sources", len(sources))
+	log.Printf("Gemini Notebook: Imported %d research sources", len(sources))
 	return nil
 }

@@ -1,7 +1,7 @@
 {
   "name": "@missdeer/notebooklm",
   "version": "0.1.1",
-  "description": "CLI client for Google NotebookLM — create notebooks, add sources, generate audio/reports/slides and more",
+  "description": "CLI client for Google Gemini Notebook — create notebooks, add sources, generate audio/reports/slides and more",
   "publishConfig": {
     "access": "public"
   },
@@ -16,6 +16,8 @@
   },
   "homepage": "https://github.com/missdeer/notebooklm-client#readme",
   "keywords": [
+    "gemini-notebook",
+    "gemini",
     "notebooklm",
     "google",
     "podcast",

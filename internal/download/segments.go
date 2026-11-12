@@ -127,7 +127,7 @@ func downloadContent(ctx context.Context, client *http.Client, sess types.Notebo
 			validator = resp.Header.Get("Last-Modified")
 		}
 		if workers := shardCount(total); workers > 1 {
-			log.Printf("NotebookLM: Downloading %d bytes with %d workers", total, workers)
+			log.Printf("Gemini Notebook: Downloading %d bytes with %d workers", total, workers)
 			err = downloadShards(ctx, client, sess, u, file, total, workers, validator)
 			if err != nil && !errors.Is(err, errRangeIgnored) {
 				return err
@@ -135,7 +135,7 @@ func downloadContent(ctx context.Context, client *http.Client, sess types.Notebo
 			if err == nil {
 				return finishDownload(file, output)
 			}
-			log.Print("NotebookLM: Server ignored Range; restarting as a single download")
+			log.Print("Gemini Notebook: Server ignored Range; restarting as a single download")
 		}
 		// Small files and servers that stop honoring Range use one full response.
 		if err := file.Truncate(0); err != nil {
@@ -308,7 +308,7 @@ func openDownloadResponse(ctx context.Context, client *http.Client, sess types.N
 		if attempt == 10 {
 			return nil, fmt.Errorf("download failed after %d attempts: %w", attempt, err)
 		}
-		log.Printf("NotebookLM: Download not ready (attempt %d/10), retrying...", attempt)
+		log.Printf("Gemini Notebook: Download not ready (attempt %d/10), retrying...", attempt)
 		if err := waitDownloadRetry(ctx, attempt); err != nil {
 			return nil, err
 		}

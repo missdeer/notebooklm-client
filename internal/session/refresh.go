@@ -71,7 +71,7 @@ func refreshTokensAtHost(ctx context.Context, session types.NotebookRpcSession, 
 
 	baseHost := rpc.NotebookHost(resp.Request.URL.String())
 	if baseHost == "" {
-		return nil, fmt.Errorf("token refresh failed: redirected outside NotebookLM (cookies may be expired)")
+		return nil, fmt.Errorf("token refresh failed: redirected outside Gemini Notebook (cookies may be expired)")
 	}
 	html := string(body)
 	atMatch := reAT.FindStringSubmatch(html)
@@ -109,7 +109,7 @@ func refreshTokensAtHost(ctx context.Context, session types.NotebookRpcSession, 
 		filePath = rpc.SessionPath()
 	}
 	if savedPath, err := Save(refreshed, filePath); err == nil {
-		log.Printf("NotebookLM: Tokens refreshed and saved to %s", savedPath)
+		log.Printf("Gemini Notebook: Tokens refreshed and saved to %s", savedPath)
 	}
 
 	return &refreshed, nil

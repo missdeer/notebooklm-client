@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Dual-implementation (TypeScript + Go) client for Google NotebookLM. Reverse-engineers the undocumented `batchexecute` RPC protocol to programmatically create notebooks, add sources, generate artifacts (audio podcasts, reports, slides, quizzes, videos, infographics, data tables, flashcards), and download results.
+Dual-implementation (TypeScript + Go) client for Google Gemini Notebook. Reverse-engineers the undocumented `batchexecute` RPC protocol to programmatically create notebooks, add sources, generate artifacts (audio podcasts, reports, slides, quizzes, videos, infographics, data tables, flashcards), and download results.
 
 - **TypeScript** (`notebooklm-client-ts/`): The original, full-featured implementation. Published as npm package `notebooklm-client`. See `notebooklm-client-ts/CLAUDE.md` for TS-specific details.
 - **Go** (root): Rewrite targeting single static binary. Should stay aligned with the TypeScript version — TS is the source of truth for features, behavior, and protocol details.

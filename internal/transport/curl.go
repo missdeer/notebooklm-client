@@ -142,7 +142,7 @@ func (t *CurlTransport) RefreshSession(ctx context.Context) error {
 	if t.onSessionExpired == nil {
 		return types.NewSessionError("session expired and no refresh callback provided", nil)
 	}
-	log.Println("NotebookLM: Refreshing session (curl transport)...")
+	log.Println("Gemini Notebook: Refreshing session (curl transport)...")
 	newSession, err := t.onSessionExpired(ctx)
 	if err != nil {
 		return err
@@ -150,7 +150,7 @@ func (t *CurlTransport) RefreshSession(ctx context.Context) error {
 	t.mu.Lock()
 	t.session = *newSession
 	t.mu.Unlock()
-	log.Println("NotebookLM: Session refreshed")
+	log.Println("Gemini Notebook: Session refreshed")
 	return nil
 }
 

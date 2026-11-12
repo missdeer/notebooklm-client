@@ -129,7 +129,7 @@ var refreshSessionCmd = &cobra.Command{
 }
 
 // criticalCookies are the Google account cookies most relevant for keeping a
-// NotebookLM session alive. Order reflects display priority.
+// Gemini Notebook session alive. Order reflects display priority.
 var criticalCookies = []string{
 	"__Secure-1PSID", "__Secure-3PSID",
 	"__Secure-1PSIDTS", "__Secure-3PSIDTS",

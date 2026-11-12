@@ -127,7 +127,7 @@ func (t *UTLSTransport) RefreshSession(ctx context.Context) error {
 		return types.NewSessionError(
 			"session expired and no refresh callback provided", nil)
 	}
-	log.Println("NotebookLM: Refreshing session (utls transport)...")
+	log.Println("Gemini Notebook: Refreshing session (utls transport)...")
 	newSession, err := t.onSessionExpired(ctx)
 	if err != nil {
 		return fmt.Errorf("refresh session: %w", err)
@@ -135,7 +135,7 @@ func (t *UTLSTransport) RefreshSession(ctx context.Context) error {
 	t.mu.Lock()
 	t.session = *newSession
 	t.mu.Unlock()
-	log.Println("NotebookLM: Session refreshed")
+	log.Println("Gemini Notebook: Session refreshed")
 	return nil
 }
 

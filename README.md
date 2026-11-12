@@ -1,6 +1,8 @@
-# notebooklm-client (Go)
+# Gemini Notebook CLI (Go)
 
-Google [NotebookLM](https://notebooklm.google.com/) CLI 的 Go 重写版本 — 单一静态二进制，零运行时依赖。
+Google [Gemini Notebook](https://notebook.google.com/) CLI 的 Go 重写版本 — 单一静态二进制，零运行时依赖。
+
+Google 已将 NotebookLM [更名为 Gemini Notebook](https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/)。本项目继续使用 `notebooklm-client` 仓库名、`notebooklm` 命令、现有 npm 包名、`NOTEBOOKLM_*` 环境变量和 `~/.notebooklm` 配置目录，兼容已有安装与脚本。
 
 生成音频播客、报告、幻灯片、测验、视频、信息图、数据表、闪卡，分析内容，管理笔记本，以及与笔记本对话。
 
@@ -62,7 +64,7 @@ npx @missdeer/notebooklm import-cookies --file ~/cookies.txt        # 任何 Net
 
 `export-session` 兼容 `notebooklm.google.com` 与新版 `notebook.google.com`，无需 build label 保持旧前缀。导出和刷新时会重新采集包括 HttpOnly 在内的 Cookie，并在 session 中记录实际登录域名（`baseHost`），后续 RPC、上传和 token 刷新沿用该域名。已有 TypeScript session 仍可导入；缺少 `baseHost` 的旧 session 在刷新失败时会尝试新版域名。
 
-HTTP 请求按目标 URL 筛选 Cookie 的域、路径和有效期，避免把 Google 登录页专用 Cookie 发给 NotebookLM 而触发 `CookieMismatch`。自动刷新后的重试会同时更新 `at`、`bl`、`f.sid` 和 Cookie；刷新失败时不会把未变化的旧 session 当作恢复成功。
+HTTP 请求按目标 URL 筛选 Cookie 的域、路径和有效期，避免把 Google 登录页专用 Cookie 发给 Gemini Notebook 而触发 `CookieMismatch`。自动刷新后的重试会同时更新 `at`、`bl`、`f.sid` 和 Cookie；刷新失败时不会把未变化的旧 session 当作恢复成功。
 
 > **Tips：** 如果执行 `export-session` 时 Chrome 浏览器中报错 `Can't sign in`，**不要关掉浏览器**：先在浏览器工具栏按钮中登录自己的账号，再打开 `https://notebook.google.com` 登录账号，然后关闭浏览器，重新执行 `export-session`，即可直接使用刚才登录的 session 信息。
 
@@ -76,7 +78,7 @@ go build -o notebooklm ./cmd/notebooklm
 ./notebooklm list --transport http
 ```
 
-> **关于 `import-cookies`**：只读取 `google.com` / `youtube.com` / `googleusercontent.com` 域的 cookie，拿到后立即用它们向 NotebookLM 换取 `at`/`bl`/`fsid`，最后写入 `session.json`。全流程**不启动浏览器**，适合服务器 / CI / 无图形环境。
+> **关于 `import-cookies`**：只读取 `google.com` / `youtube.com` / `googleusercontent.com` 域的 cookie，拿到后立即用它们向 Gemini Notebook 换取 `at`/`bl`/`fsid`，最后写入 `session.json`。全流程**不启动浏览器**，适合服务器 / CI / 无图形环境。
 >
 > - **不带任何参数**：扫描默认路径下所有 Firefox profile（Windows `%APPDATA%\Mozilla\Firefox\Profiles`、macOS `~/Library/Application Support/Firefox/Profiles`、Linux `~/.mozilla/firefox` 及 XDG / snap / flatpak 变体）以及 macOS 上的 Safari，合并所有 profile 的 cookie。
 > - **同一个 cookie 在多个 profile 中出现时**：按 Firefox `lastAccessed` / Safari `creation_date` 取**最新**一份，确保拿到的是你当前实际使用的账号。命令末尾会打印每个来源贡献了几个 cookie。
